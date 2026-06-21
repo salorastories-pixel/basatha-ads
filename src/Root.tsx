@@ -279,6 +279,13 @@ const AwardIcon: React.FC<{size: number; color: string}> = (p) => (
     <polyline points="8.21,13.89 7,23 12,20 17,23 15.79,13.88" />
   </Svg>
 );
+const CartIcon: React.FC<{size: number; color: string}> = (p) => (
+  <Svg {...p}>
+    <circle cx="9" cy="21" r="1.4" fill={p.color} stroke="none" />
+    <circle cx="19" cy="21" r="1.4" fill={p.color} stroke="none" />
+    <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6" />
+  </Svg>
+);
 
 // ===== المشاهد 3-6: المميزات كبلوكات ملوّنة (أيقونة | فاصل | نص) =====
 type Feat = {
@@ -302,82 +309,114 @@ const STAGGER = 50; // مسافة ظهور كل بلوك (frames)
 const SceneFeatures: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
+  const pc = animIn(frame, fps, 0);
   return (
-    <AbsoluteFill
-      style={{
-        justifyContent: 'center',
-        alignItems: 'stretch',
-        flexDirection: 'column',
-        gap: 26,
-        padding: '0 70px',
-      }}
-    >
-      {features.map((r, i) => {
-        const a = animIn(frame, fps, i * STAGGER);
-        const Icon = r.Icon;
-        return (
-          <div
-            key={i}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 26,
-              background: r.bg,
-              borderRadius: 34,
-              padding: '24px 36px',
-              boxShadow: SHADOW_SOFT,
-              opacity: a.o,
-              // تطلع من يمين الشاشة وتستقر في مكانها
-              transform: `translateX(${a.tx(220)}px) scale(${a.sc(0.92)})`,
-            }}
-          >
-            {/* الأيقونة (يمين في RTL) */}
-            <div
-              style={{
-                flexShrink: 0,
-                width: 92,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Icon size={66} color={r.ic} />
-            </div>
-            {/* الفاصل */}
-            <div style={{width: 3, height: 78, background: r.div, borderRadius: 3, flexShrink: 0}} />
-            {/* النص */}
-            <div
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                textAlign: 'right',
-              }}
-            >
-              <span style={{fontSize: 60, fontWeight: 800, color: r.fg, lineHeight: 1.18}}>
-                {r.t}
-              </span>
-              {r.sub ? (
-                <span
+    <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', padding: '0 56px'}}>
+      {/* عمودان زي الصورة: مميزات (يمين) + كرت السعر (يسار) */}
+      <div style={{display: 'flex', flexDirection: 'row', gap: 22, width: '100%', alignItems: 'stretch'}}>
+        {/* عمود المميزات (يمين في RTL) */}
+        <div style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 18}}>
+          {features.map((r, i) => {
+            const a = animIn(frame, fps, i * STAGGER);
+            const Icon = r.Icon;
+            return (
+              <div
+                key={i}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 18,
+                  background: r.bg,
+                  borderRadius: 28,
+                  padding: '18px 26px',
+                  boxShadow: SHADOW_SOFT,
+                  opacity: a.o,
+                  transform: `translateX(${a.tx(200)}px) scale(${a.sc(0.92)})`,
+                }}
+              >
+                <div
                   style={{
-                    fontSize: 40,
-                    fontWeight: 800,
-                    color: INK,
-                    backgroundColor: r.badge ? YELLOW : WHITE,
-                    borderRadius: 12,
-                    padding: '4px 20px',
-                    alignSelf: 'flex-start',
-                    marginTop: 10,
+                    flexShrink: 0,
+                    width: 70,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   }}
                 >
-                  {r.sub}
-                </span>
-              ) : null}
-            </div>
+                  <Icon size={54} color={r.ic} />
+                </div>
+                <div style={{width: 3, height: 60, background: r.div, borderRadius: 3, flexShrink: 0}} />
+                <div
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'flex-start',
+                    textAlign: 'right',
+                  }}
+                >
+                  <span style={{fontSize: 46, fontWeight: 800, color: r.fg, lineHeight: 1.15}}>
+                    {r.t}
+                  </span>
+                  {r.sub ? (
+                    <span
+                      style={{
+                        fontSize: 30,
+                        fontWeight: 800,
+                        color: INK,
+                        backgroundColor: r.badge ? YELLOW : WHITE,
+                        borderRadius: 10,
+                        padding: '3px 16px',
+                        alignSelf: 'flex-start',
+                        marginTop: 8,
+                      }}
+                    >
+                      {r.sub}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* كرت السعر (يسار) */}
+        <div
+          style={{
+            width: 280,
+            flexShrink: 0,
+            background: 'linear-gradient(180deg, #EE2330, #C8121F)',
+            borderRadius: 34,
+            padding: '30px 16px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            boxShadow: '0 22px 50px rgba(225,29,42,0.4)',
+            opacity: pc.o,
+            transform: `translateX(${pc.tx(-160)}px) scale(${pc.sc(0.88)})`,
+          }}
+        >
+          <CartIcon size={70} color={WHITE} />
+          <div style={{textAlign: 'center', color: WHITE, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6}}>
+            <div style={{fontSize: 42, fontWeight: 800, lineHeight: 1}}>السعر</div>
+            <div style={{fontSize: 132, fontWeight: 800, lineHeight: 1, direction: 'ltr'}}>89</div>
+            <div style={{fontSize: 46, fontWeight: 800, lineHeight: 1}}>ريال</div>
           </div>
-        );
-      })}
+          <div
+            style={{
+              fontSize: 34,
+              fontWeight: 800,
+              color: INK,
+              background: YELLOW,
+              borderRadius: 14,
+              padding: '6px 22px',
+            }}
+          >
+            بسعر وجبة
+          </div>
+        </div>
+      </div>
     </AbsoluteFill>
   );
 };
