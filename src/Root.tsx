@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   AbsoluteFill,
+  Audio,
   Composition,
   Sequence,
   Img,
@@ -89,6 +90,17 @@ const FloatingShapes: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+// ===== مؤثر صوتي مؤقّت عند لقطة معيّنة =====
+const Sfx: React.FC<{from: number; file: string; volume?: number}> = ({
+  from,
+  file,
+  volume = 1,
+}) => (
+  <Sequence from={from} durationInFrames={90} layout="none">
+    <Audio src={staticFile(`audio/${file}`)} volume={volume} />
+  </Sequence>
+);
 
 // ===== غلاف المشهد: دخول/خروج ناعم بدل القطع الحاد =====
 const SceneWrap: React.FC<{dur: number; children: React.ReactNode}> = ({
@@ -268,7 +280,7 @@ const SceneList: React.FC<{count: number}> = ({count}) => {
             >
               <span style={{color: WHITE, fontSize: 60, fontWeight: 800}}>&#10003;</span>
             </div>
-            <div style={{display: 'flex', flexDirection: 'column'}}>
+            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'right'}}>
               <span style={{fontSize: 82, fontWeight: 800, color: INK, lineHeight: 1.15}}>
                 {r.t}
               </span>
@@ -474,8 +486,36 @@ const ProgressBar: React.FC = () => {
 // ===== تجميع الإعلان (9 مشاهد) =====
 const DawraAd: React.FC = () => {
   return (
-    <AbsoluteFill style={{backgroundColor: CREAM, fontFamily: FONT}}>
+    <AbsoluteFill style={{backgroundColor: CREAM, fontFamily: FONT, direction: 'rtl'}}>
       <FontFace />
+      {/* ===== المؤثرات الصوتية ===== */}
+      <Audio src={staticFile('audio/music.wav')} volume={0.42} />
+      {/* انتقالات */}
+      <Sfx from={0} file="whoosh.wav" volume={0.5} />
+      <Sfx from={60} file="whoosh.wav" volume={0.5} />
+      <Sfx from={340} file="whoosh.wav" volume={0.5} />
+      <Sfx from={410} file="whoosh.wav" volume={0.5} />
+      <Sfx from={470} file="whoosh.wav" volume={0.5} />
+      {/* عدّاد السعر: تكّات ثم رنّة عند 89 */}
+      {[8, 13, 18, 23, 28, 33].map((f) => (
+        <Sfx key={`p${f}`} from={f} file="tick.wav" volume={0.32} />
+      ))}
+      <Sfx from={37} file="ding.wav" volume={0.75} />
+      {/* ظهور كل ميزة في القائمة */}
+      <Sfx from={100} file="pop.wav" volume={0.7} />
+      <Sfx from={160} file="pop.wav" volume={0.7} />
+      <Sfx from={220} file="pop.wav" volume={0.7} />
+      <Sfx from={280} file="pop.wav" volume={0.7} />
+      {/* "بسعر وجبة" */}
+      <Sfx from={362} file="pop.wav" volume={0.8} />
+      {/* عدّاد المتدربين: تكّات ثم رنّة + نجوم */}
+      {[412, 420, 428, 436, 444, 452].map((f) => (
+        <Sfx key={`c${f}`} from={f} file="tick.wav" volume={0.3} />
+      ))}
+      <Sfx from={461} file="ding.wav" volume={0.7} />
+      <Sfx from={468} file="pop.wav" volume={0.6} />
+      {/* الختام */}
+      <Sfx from={488} file="success.wav" volume={0.9} />
       {/* وهج ناعم في المنتصف يعطي عمق */}
       <AbsoluteFill
         style={{
