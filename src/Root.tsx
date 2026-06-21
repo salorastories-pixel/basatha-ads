@@ -20,6 +20,10 @@ const YELLOW = '#FED003';
 const PINK = '#FDA6C9';
 const BLUE = '#0AA0FD';
 const WHITE = '#FFFFFF';
+const PURPLE = '#6D49E8';
+const AMBER = '#F6C453';
+const SALMON = '#EE8497';
+const GREEN = '#22C55E';
 const FONT = 'OYMandisa, "Segoe UI", Tahoma, sans-serif';
 
 const SHADOW_SOFT = '0 18px 45px rgba(25,24,24,0.14)';
@@ -212,29 +216,6 @@ const ScenePrice: React.FC = () => {
   );
 };
 
-// ===== المشهد 2: عنوان "تحصل على:" =====
-const SceneHeader: React.FC = () => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const p = animIn(frame, fps, 0);
-  return (
-    <Center style={{justifyContent: 'flex-start', paddingTop: 360}}>
-      <div
-        style={{
-          backgroundColor: PINK,
-          borderRadius: 30,
-          padding: '22px 64px',
-          opacity: p.o,
-          transform: `scale(${p.sc(0.7)}) rotate(${interpolate(p.s, [0, 1], [-4, 0])}deg)`,
-          boxShadow: SHADOW_SOFT,
-        }}
-      >
-        <span style={{fontSize: 150, fontWeight: 800, color: INK}}>تحصل على:</span>
-      </div>
-    </Center>
-  );
-};
-
 // ===== أيقونات SVG للمميزات =====
 const Svg: React.FC<{size: number; color: string; children: React.ReactNode}> = ({
   size,
@@ -273,11 +254,34 @@ const ChatIcon: React.FC<{size: number; color: string}> = (p) => (
     <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z" />
   </Svg>
 );
-const AwardIcon: React.FC<{size: number; color: string}> = (p) => (
+const ClipboardIcon: React.FC<{size: number; color: string}> = (p) => (
   <Svg {...p}>
-    <circle cx="12" cy="8" r="7" />
-    <polyline points="8.21,13.89 7,23 12,20 17,23 15.79,13.88" />
+    <path d="M9 2h6a1 1 0 0 1 1 1v1H8V3a1 1 0 0 1 1-1z" />
+    <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2" />
+    <polyline points="9,14 11,16 15,12" />
   </Svg>
+);
+const InfinityIcon: React.FC<{size: number; color: string}> = (p) => (
+  <Svg {...p}>
+    <path d="M6.5 8.5a3.5 3.5 0 1 0 0 7c1.7 0 3-1.5 5.5-3.5s3.8-3.5 5.5-3.5a3.5 3.5 0 1 1 0 7c-1.7 0-3-1.5-5.5-3.5S8.2 8.5 6.5 8.5z" />
+  </Svg>
+);
+const CheckIcon: React.FC<{size: number; color: string}> = ({size}) => (
+  <div
+    style={{
+      width: size,
+      height: size,
+      borderRadius: '50%',
+      background: GREEN,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    <span style={{color: WHITE, fontSize: size * 0.6, fontWeight: 800, lineHeight: 1}}>
+      &#10003;
+    </span>
+  </div>
 );
 const CartIcon: React.FC<{size: number; color: string}> = (p) => (
   <Svg {...p}>
@@ -298,123 +302,154 @@ type Feat = {
   Icon: React.FC<{size: number; color: string}>;
   badge: boolean;
 };
-const features: Feat[] = [
-  {t: '7 دورات متكاملة', sub: '', bg: BLUE, fg: WHITE, div: 'rgba(255,255,255,0.45)', ic: WHITE, Icon: PlayIcon, badge: false},
-  {t: '6 كتيبات', sub: 'منها الأكواد السرية', bg: YELLOW, fg: INK, div: 'rgba(0,0,0,0.18)', ic: INK, Icon: BookIcon, badge: false},
-  {t: 'واجب يتقيّم + دعم واتساب', sub: '', bg: '#F4869B', fg: WHITE, div: 'rgba(255,255,255,0.5)', ic: WHITE, Icon: ChatIcon, badge: false},
-  {t: 'شهادة + دخول مدى الحياة', sub: 'الأكثر قيمة', bg: '#6D28D9', fg: WHITE, div: 'rgba(255,255,255,0.5)', ic: WHITE, Icon: AwardIcon, badge: true},
+// البلوكات الرئيسية (عمود اليمين)
+const mainFeatures: Feat[] = [
+  {t: '7 دورات متكاملة', sub: '', bg: AMBER, fg: INK, div: 'rgba(0,0,0,0.2)', ic: INK, Icon: PlayIcon, badge: false},
+  {t: '6 كتيبات رقمية', sub: 'منها الأكواد السرية', bg: PURPLE, fg: WHITE, div: 'rgba(255,255,255,0.45)', ic: WHITE, Icon: BookIcon, badge: false},
+  {t: 'شهادة إتمام', sub: '', bg: SALMON, fg: WHITE, div: 'rgba(255,255,255,0.55)', ic: WHITE, Icon: CheckIcon, badge: false},
 ];
-const STAGGER = 50; // مسافة ظهور كل بلوك (frames)
+// البلوكات السفلية (٣ خدمات)
+type Bottom = {t: string; Icon: React.FC<{size: number; color: string}>};
+const bottomFeatures: Bottom[] = [
+  {t: 'دعم ع الواتساب', Icon: ChatIcon},
+  {t: 'واجب يتقيّم', Icon: ClipboardIcon},
+  {t: 'دخول مدى الحياة', Icon: InfinityIcon},
+];
+const STAGGER = 18; // مسافة ظهور كل بلوك (frames)
 
 const SceneFeatures: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const pc = animIn(frame, fps, 0);
+  const card = animIn(frame, fps, 0);
   return (
-    <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', padding: '0 56px'}}>
-      {/* عمودان زي الصورة: مميزات (يمين) + كرت السعر (يسار) */}
-      <div style={{display: 'flex', flexDirection: 'row', gap: 22, width: '100%', alignItems: 'stretch'}}>
-        {/* عمود المميزات (يمين في RTL) */}
-        <div style={{flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 18}}>
-          {features.map((r, i) => {
-            const a = animIn(frame, fps, i * STAGGER);
-            const Icon = r.Icon;
+    <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', padding: '0 52px'}}>
+      <div style={{display: 'flex', flexDirection: 'column', gap: 20, width: '100%'}}>
+        {/* الصف الرئيسي: مميزات (يمين) + كرت "بتحصل على" (يسار) */}
+        <div style={{display: 'flex', flexDirection: 'row', gap: 20, alignItems: 'stretch'}}>
+          {/* عمود المميزات (يمين في RTL) */}
+          <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: 16}}>
+            {mainFeatures.map((r, i) => {
+              const a = animIn(frame, fps, 10 + i * STAGGER);
+              const Icon = r.Icon;
+              return (
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 18,
+                    background: r.bg,
+                    borderRadius: 26,
+                    padding: '20px 26px',
+                    boxShadow: SHADOW_SOFT,
+                    opacity: a.o,
+                    transform: `translateX(${a.tx(180)}px) scale(${a.sc(0.92)})`,
+                  }}
+                >
+                  <div style={{flexShrink: 0, width: 66, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                    <Icon size={52} color={r.ic} />
+                  </div>
+                  <div style={{width: 3, height: 56, background: r.div, borderRadius: 3, flexShrink: 0}} />
+                  <div style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'right'}}>
+                    <span style={{fontSize: 46, fontWeight: 800, color: r.fg, lineHeight: 1.12}}>{r.t}</span>
+                    {r.sub ? (
+                      <span
+                        style={{
+                          fontSize: 28,
+                          fontWeight: 800,
+                          color: INK,
+                          background: WHITE,
+                          borderRadius: 10,
+                          padding: '3px 14px',
+                          alignSelf: 'flex-start',
+                          marginTop: 8,
+                        }}
+                      >
+                        {r.sub}
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* كرت "بتحصل على" (يسار) */}
+          <div
+            style={{
+              width: 230,
+              flexShrink: 0,
+              background: PURPLE,
+              borderRadius: 30,
+              padding: '30px 16px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 22,
+              boxShadow: SHADOW_SOFT,
+              opacity: card.o,
+              transform: `translateX(${card.tx(-140)}px) scale(${card.sc(0.9)})`,
+            }}
+          >
+            <CartIcon size={88} color={WHITE} />
+            <div style={{width: 70, height: 3, background: 'rgba(255,255,255,0.5)', borderRadius: 3}} />
+            <span
+              style={{
+                fontSize: 60,
+                fontWeight: 800,
+                color: WHITE,
+                textAlign: 'center',
+                lineHeight: 1.25,
+                whiteSpace: 'pre-line',
+              }}
+            >
+              {'بتحصل\nعلى'}
+            </span>
+          </div>
+        </div>
+
+        {/* الصف السفلي: ٣ بلوكات خدمات */}
+        <div style={{display: 'flex', flexDirection: 'row', gap: 16}}>
+          {bottomFeatures.map((b, i) => {
+            const a = animIn(frame, fps, 64 + i * 14);
+            const Icon = b.Icon;
             return (
               <div
                 key={i}
                 style={{
+                  flex: 1,
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
-                  gap: 18,
-                  background: r.bg,
-                  borderRadius: 28,
-                  padding: '18px 26px',
+                  gap: 12,
+                  background: PURPLE,
+                  borderRadius: 24,
+                  padding: '22px 14px',
                   boxShadow: SHADOW_SOFT,
                   opacity: a.o,
-                  transform: `translateX(${a.tx(200)}px) scale(${a.sc(0.92)})`,
+                  transform: `translateY(${a.ty(40)}px) scale(${a.sc(0.82)})`,
                 }}
               >
                 <div
                   style={{
-                    flexShrink: 0,
-                    width: 70,
+                    width: 76,
+                    height: 76,
+                    borderRadius: 20,
+                    background: 'rgba(255,255,255,0.16)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Icon size={54} color={r.ic} />
+                  <Icon size={42} color={WHITE} />
                 </div>
-                <div style={{width: 3, height: 60, background: r.div, borderRadius: 3, flexShrink: 0}} />
-                <div
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'flex-start',
-                    textAlign: 'right',
-                  }}
-                >
-                  <span style={{fontSize: 46, fontWeight: 800, color: r.fg, lineHeight: 1.15}}>
-                    {r.t}
-                  </span>
-                  {r.sub ? (
-                    <span
-                      style={{
-                        fontSize: 30,
-                        fontWeight: 800,
-                        color: INK,
-                        backgroundColor: r.badge ? YELLOW : WHITE,
-                        borderRadius: 10,
-                        padding: '3px 16px',
-                        alignSelf: 'flex-start',
-                        marginTop: 8,
-                      }}
-                    >
-                      {r.sub}
-                    </span>
-                  ) : null}
-                </div>
+                <span style={{fontSize: 36, fontWeight: 800, color: WHITE, textAlign: 'center', lineHeight: 1.25}}>
+                  {b.t}
+                </span>
               </div>
             );
           })}
-        </div>
-
-        {/* كرت السعر (يسار) */}
-        <div
-          style={{
-            width: 280,
-            flexShrink: 0,
-            background: 'linear-gradient(180deg, #EE2330, #C8121F)',
-            borderRadius: 34,
-            padding: '30px 16px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            boxShadow: '0 22px 50px rgba(225,29,42,0.4)',
-            opacity: pc.o,
-            transform: `translateX(${pc.tx(-160)}px) scale(${pc.sc(0.88)})`,
-          }}
-        >
-          <CartIcon size={70} color={WHITE} />
-          <div style={{textAlign: 'center', color: WHITE, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6}}>
-            <div style={{fontSize: 42, fontWeight: 800, lineHeight: 1}}>السعر</div>
-            <div style={{fontSize: 132, fontWeight: 800, lineHeight: 1, direction: 'ltr'}}>89</div>
-            <div style={{fontSize: 46, fontWeight: 800, lineHeight: 1}}>ريال</div>
-          </div>
-          <div
-            style={{
-              fontSize: 34,
-              fontWeight: 800,
-              color: INK,
-              background: YELLOW,
-              borderRadius: 14,
-              padding: '6px 22px',
-            }}
-          >
-            بسعر وجبة
-          </div>
         </div>
       </div>
     </AbsoluteFill>
@@ -614,11 +649,14 @@ const DawraAd: React.FC = () => {
         <Sfx key={`p${f}`} from={f} file="tick.wav" volume={0.32} />
       ))}
       <Sfx from={37} file="ding.wav" volume={0.75} />
-      {/* ظهور كل بلوك في القائمة (آخر بلوك يأخذ رنّة مميّزة) */}
-      <Sfx from={100} file="pop.wav" volume={0.7} />
-      <Sfx from={150} file="pop.wav" volume={0.7} />
-      <Sfx from={200} file="pop.wav" volume={0.7} />
-      <Sfx from={250} file="ding.wav" volume={0.7} />
+      {/* ظهور البلوكات: كرت "بتحصل على" + ٣ يمين + ٣ تحت */}
+      <Sfx from={62} file="ding.wav" volume={0.6} />
+      <Sfx from={72} file="pop.wav" volume={0.7} />
+      <Sfx from={90} file="pop.wav" volume={0.7} />
+      <Sfx from={108} file="pop.wav" volume={0.7} />
+      <Sfx from={126} file="pop.wav" volume={0.55} />
+      <Sfx from={140} file="pop.wav" volume={0.55} />
+      <Sfx from={154} file="pop.wav" volume={0.55} />
       {/* "بسعر وجبة" */}
       <Sfx from={362} file="pop.wav" volume={0.8} />
       {/* عدّاد المتدربين: تكّات ثم رنّة + نجوم */}
@@ -643,13 +681,8 @@ const DawraAd: React.FC = () => {
           <ScenePrice />
         </SceneWrap>
       </Sequence>
-      <Sequence from={60} durationInFrames={40}>
-        <SceneWrap dur={40}>
-          <SceneHeader />
-        </SceneWrap>
-      </Sequence>
-      <Sequence from={100} durationInFrames={240}>
-        <SceneWrap dur={240}>
+      <Sequence from={60} durationInFrames={280}>
+        <SceneWrap dur={280}>
           <SceneFeatures />
         </SceneWrap>
       </Sequence>
