@@ -235,62 +235,93 @@ const SceneHeader: React.FC = () => {
   );
 };
 
-// ===== المشاهد 3-6: قائمة المميزات (تراكمية) =====
-const rows = [
+// ===== المشاهد 3-6: قائمة المميزات (بناء بلوكات متراكمة، لا تختفي) =====
+const features = [
   {t: '7 دورات متكاملة', c: BLUE, sub: ''},
   {t: '6 كتيبات', c: PINK, sub: 'منها الأكواد السرية'},
   {t: 'واجب يتقيّم + دعم واتساب', c: BLUE, sub: ''},
-  {t: 'شهادة + دخول مدى الحياة', c: PINK, sub: ''},
+  {t: 'شهادة + دخول مدى الحياة', c: BLUE, sub: 'الأكثر قيمة', big: true},
 ];
-const SceneList: React.FC<{count: number}> = ({count}) => {
+const STAGGER = 50; // مسافة ظهور كل ميزة (frames)
+
+const SceneFeatures: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   return (
-    <Center style={{alignItems: 'stretch', padding: '0 70px', gap: 44}}>
-      {rows.slice(0, count).map((r, i) => {
-        const isNew = i === count - 1;
-        const a = isNew ? animIn(frame, fps, 0) : {o: 1, s: 1, sc: () => 1, ty: () => 0, tx: () => 0};
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'flex-start', // يمين الشاشة (RTL)
+        flexDirection: 'column',
+        gap: 34,
+        padding: '0 80px',
+      }}
+    >
+      {features.map((r, i) => {
+        const a = animIn(frame, fps, i * STAGGER);
+        const big = !!r.big;
+        const circle = big ? 118 : 96;
         return (
           <div
             key={i}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 34,
-              backgroundColor: WHITE,
-              borderRadius: 36,
-              padding: '30px 40px',
-              boxShadow: SHADOW_SOFT,
+              gap: 32,
+              width: big ? '100%' : 'auto', // آخر بلوك أطول من البقية
+              backgroundColor: big ? BLUE : WHITE,
+              borderRadius: big ? 44 : 34,
+              padding: big ? '44px 56px' : '26px 40px',
+              boxShadow: big ? '0 24px 55px rgba(10,160,253,0.4)' : SHADOW_SOFT,
               opacity: a.o,
-              transform: `translateX(${a.tx(70)}px) scale(${isNew ? a.sc(0.92) : 1})`,
+              // تطلع من يمين الشاشة وتستقر في مكانها
+              transform: `translateX(${a.tx(220)}px) scale(${a.sc(0.9)})`,
             }}
           >
             <div
               style={{
-                width: 100,
-                height: 100,
+                width: circle,
+                height: circle,
                 borderRadius: '50%',
-                backgroundColor: r.c,
+                backgroundColor: big ? YELLOW : r.c,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
-                boxShadow: `0 8px 20px ${r.c}55`,
+                boxShadow: big ? '0 10px 24px rgba(0,0,0,0.18)' : `0 8px 20px ${r.c}55`,
               }}
             >
-              <span style={{color: WHITE, fontSize: 60, fontWeight: 800}}>&#10003;</span>
+              <span
+                style={{color: big ? INK : WHITE, fontSize: big ? 70 : 58, fontWeight: 800}}
+              >
+                &#10003;
+              </span>
             </div>
-            <div style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'right'}}>
-              <span style={{fontSize: 82, fontWeight: 800, color: INK, lineHeight: 1.15}}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                textAlign: 'right',
+              }}
+            >
+              <span
+                style={{
+                  fontSize: big ? 92 : 78,
+                  fontWeight: 800,
+                  color: big ? WHITE : INK,
+                  lineHeight: 1.15,
+                }}
+              >
                 {r.t}
               </span>
               {r.sub ? (
                 <span
                   style={{
-                    fontSize: 48,
+                    fontSize: big ? 50 : 46,
                     fontWeight: 800,
                     color: INK,
-                    backgroundColor: PINK,
+                    backgroundColor: big ? YELLOW : PINK,
                     borderRadius: 14,
                     padding: '4px 22px',
                     alignSelf: 'flex-start',
@@ -304,7 +335,7 @@ const SceneList: React.FC<{count: number}> = ({count}) => {
           </div>
         );
       })}
-    </Center>
+    </AbsoluteFill>
   );
 };
 
@@ -501,11 +532,11 @@ const DawraAd: React.FC = () => {
         <Sfx key={`p${f}`} from={f} file="tick.wav" volume={0.32} />
       ))}
       <Sfx from={37} file="ding.wav" volume={0.75} />
-      {/* ظهور كل ميزة في القائمة */}
+      {/* ظهور كل بلوك في القائمة (آخر بلوك يأخذ رنّة مميّزة) */}
       <Sfx from={100} file="pop.wav" volume={0.7} />
-      <Sfx from={160} file="pop.wav" volume={0.7} />
-      <Sfx from={220} file="pop.wav" volume={0.7} />
-      <Sfx from={280} file="pop.wav" volume={0.7} />
+      <Sfx from={150} file="pop.wav" volume={0.7} />
+      <Sfx from={200} file="pop.wav" volume={0.7} />
+      <Sfx from={250} file="ding.wav" volume={0.7} />
       {/* "بسعر وجبة" */}
       <Sfx from={362} file="pop.wav" volume={0.8} />
       {/* عدّاد المتدربين: تكّات ثم رنّة + نجوم */}
@@ -535,24 +566,9 @@ const DawraAd: React.FC = () => {
           <SceneHeader />
         </SceneWrap>
       </Sequence>
-      <Sequence from={100} durationInFrames={60}>
-        <SceneWrap dur={60}>
-          <SceneList count={1} />
-        </SceneWrap>
-      </Sequence>
-      <Sequence from={160} durationInFrames={60}>
-        <SceneWrap dur={60}>
-          <SceneList count={2} />
-        </SceneWrap>
-      </Sequence>
-      <Sequence from={220} durationInFrames={60}>
-        <SceneWrap dur={60}>
-          <SceneList count={3} />
-        </SceneWrap>
-      </Sequence>
-      <Sequence from={280} durationInFrames={60}>
-        <SceneWrap dur={60}>
-          <SceneList count={4} />
+      <Sequence from={100} durationInFrames={240}>
+        <SceneWrap dur={240}>
+          <SceneFeatures />
         </SceneWrap>
       </Sequence>
       <Sequence from={340} durationInFrames={70}>
