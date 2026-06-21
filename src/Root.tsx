@@ -8,38 +8,36 @@ import {
   staticFile,
   interpolate,
   spring,
-  Easing,
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
 
-// ===== هوية بسطها الرسمية =====
-const CREAM = '#F6EBDB';
-const INK = '#191818';
-const YELLOW = '#FED003';
-const PINK = '#FDA6C9';
-const BLUE = '#0AA0FD';
+// ===== هوية بسطها =====
+const INK = '#1B1B1B';
+const YELLOW = '#FFC400';
+const SALMON = '#F4869B';
+const BLUE = '#2F6BE4';
+const PURPLE = '#6D28D9';
+const RED = '#E11D2A';
+const GREEN = '#22C55E';
 const WHITE = '#FFFFFF';
 const FONT = 'OYMandisa, "Segoe UI", Tahoma, sans-serif';
+const SHADOW = '0 16px 38px rgba(20,20,40,0.16)';
 
-const SHADOW_SOFT = '0 18px 45px rgba(25,24,24,0.14)';
-const SHADOW_DEEP = '0 26px 60px rgba(25,24,24,0.22)';
-
-// تحميل خط بسطها (الملف في مجلد public)
 const FontFace = () => (
   <style>{`@font-face{font-family:'OYMandisa';src:url('${staticFile(
     'OYMandisa.ttf',
   )}') format('truetype');font-weight:normal;font-style:normal;}`}</style>
 );
 
-// ===== مساعد الحركة (ظهور بارتداد طبيعي) =====
+// ===== مساعد الحركة (ظهور بارتداد) =====
 const animIn = (frame: number, fps: number, delay = 0) => {
   const s = spring({
     frame: frame - delay,
     fps,
-    config: {damping: 13, stiffness: 170, mass: 0.8},
+    config: {damping: 14, stiffness: 170, mass: 0.8},
   });
-  const o = interpolate(frame - delay, [0, 7], [0, 1], {
+  const o = interpolate(frame - delay, [0, 8], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
@@ -52,17 +50,94 @@ const animIn = (frame: number, fps: number, delay = 0) => {
   };
 };
 
-// ===== خلفية حيّة: أشكال عائمة متحركة باستمرار =====
+// ===== أيقونات SVG =====
+const Svg: React.FC<{size: number; color: string; children: React.ReactNode}> = ({
+  size,
+  color,
+  children,
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke={color}
+    strokeWidth={2.1}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    {children}
+  </svg>
+);
+const CartIcon: React.FC<{size: number; color: string}> = (p) => (
+  <Svg {...p}>
+    <circle cx="9" cy="21" r="1.4" fill={p.color} stroke="none" />
+    <circle cx="19" cy="21" r="1.4" fill={p.color} stroke="none" />
+    <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6" />
+  </Svg>
+);
+const PlayIcon: React.FC<{size: number; color: string}> = (p) => (
+  <Svg {...p}>
+    <rect x="2" y="3" width="20" height="14" rx="2" />
+    <line x1="8" y1="21" x2="16" y2="21" />
+    <line x1="12" y1="17" x2="12" y2="21" />
+    <polygon points="10.5,8 15,10.5 10.5,13" fill={p.color} stroke="none" />
+  </Svg>
+);
+const ClockIcon: React.FC<{size: number; color: string}> = (p) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <polyline points="12,7 12,12 16,14" />
+  </Svg>
+);
+const ChatIcon: React.FC<{size: number; color: string}> = (p) => (
+  <Svg {...p}>
+    <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z" />
+  </Svg>
+);
+const UsersIcon: React.FC<{size: number; color: string}> = (p) => (
+  <Svg {...p}>
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.9" />
+    <path d="M16 3.1a4 4 0 0 1 0 7.7" />
+  </Svg>
+);
+const BookIcon: React.FC<{size: number; color: string}> = (p) => (
+  <Svg {...p}>
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+  </Svg>
+);
+const CheckBadge: React.FC<{size: number}> = ({size}) => (
+  <div
+    style={{
+      width: size,
+      height: size,
+      borderRadius: '50%',
+      background: WHITE,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      boxShadow: '0 6px 14px rgba(0,0,0,0.18)',
+    }}
+  >
+    <span style={{color: GREEN, fontSize: size * 0.62, fontWeight: 800, lineHeight: 1}}>
+      &#10003;
+    </span>
+  </div>
+);
+
+// ===== خلفية حيّة: أشكال عائمة خفيفة =====
 const FloatingShapes: React.FC = () => {
   const frame = useCurrentFrame();
   const shapes = [
-    {x: '8%', y: '12%', d: 120, c: YELLOW, sp: 0.6, amp: 24, op: 0.16},
-    {x: '82%', y: '16%', d: 70, c: BLUE, sp: 0.9, amp: 30, op: 0.14},
-    {x: '14%', y: '80%', d: 96, c: PINK, sp: 0.7, amp: 28, op: 0.16},
-    {x: '86%', y: '78%', d: 52, c: BLUE, sp: 1.1, amp: 22, op: 0.12},
-    {x: '50%', y: '6%', d: 40, c: PINK, sp: 0.8, amp: 20, op: 0.1},
-    {x: '92%', y: '48%', d: 30, c: YELLOW, sp: 1.0, amp: 26, op: 0.14},
-    {x: '6%', y: '50%', d: 36, c: BLUE, sp: 0.85, amp: 24, op: 0.12},
+    {x: '8%', y: '10%', d: 120, c: YELLOW, sp: 0.6, amp: 22, op: 0.1},
+    {x: '85%', y: '14%', d: 70, c: BLUE, sp: 0.9, amp: 28, op: 0.09},
+    {x: '12%', y: '84%', d: 96, c: SALMON, sp: 0.7, amp: 26, op: 0.1},
+    {x: '88%', y: '80%', d: 52, c: PURPLE, sp: 1.1, amp: 20, op: 0.08},
+    {x: '92%', y: '48%', d: 34, c: YELLOW, sp: 1.0, amp: 24, op: 0.09},
+    {x: '5%', y: '50%', d: 40, c: BLUE, sp: 0.85, amp: 22, op: 0.08},
   ];
   return (
     <AbsoluteFill>
@@ -91,7 +166,7 @@ const FloatingShapes: React.FC = () => {
   );
 };
 
-// ===== مؤثر صوتي مؤقّت عند لقطة معيّنة =====
+// ===== مؤثر صوتي عند لقطة =====
 const Sfx: React.FC<{from: number; file: string; volume?: number}> = ({
   from,
   file,
@@ -102,402 +177,302 @@ const Sfx: React.FC<{from: number; file: string; volume?: number}> = ({
   </Sequence>
 );
 
-// ===== غلاف المشهد: دخول/خروج ناعم بدل القطع الحاد =====
-const SceneWrap: React.FC<{dur: number; children: React.ReactNode}> = ({
-  dur,
-  children,
-}) => {
-  const frame = useCurrentFrame();
-  const opacity = interpolate(
-    frame,
-    [0, 9, dur - 9, dur],
-    [0, 1, 1, 0],
-    {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-  );
-  const blur = interpolate(
-    frame,
-    [0, 9, dur - 9, dur],
-    [10, 0, 0, 10],
-    {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
-  );
-  return (
-    <AbsoluteFill style={{opacity, filter: `blur(${blur}px)`}}>
-      {children}
-    </AbsoluteFill>
-  );
+// ===== توقيت ظهور العناصر (frames) =====
+const D = {
+  logo: 0,
+  title: 8,
+  price: 22,
+  feat: [34, 52, 70],
+  bottom: [86, 98, 110],
+  swipe: 124,
 };
 
-// إطار التوسيط المشترك
-const Center: React.FC<{children: React.ReactNode; style?: React.CSSProperties}> = ({
-  children,
-  style,
-}) => (
-  <AbsoluteFill
-    style={{
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexDirection: 'column',
-      ...style,
-    }}
-  >
-    {children}
-  </AbsoluteFill>
-);
-
-// ===== المشهد 1: عدّاد السعر =====
-const ScenePrice: React.FC = () => {
+// ===== الشعار =====
+const LogoTop: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const pre = animIn(frame, fps, 0);
-  const box = animIn(frame, fps, 6);
-  const q = animIn(frame, fps, 30);
-  // العدّاد يصعد من 0 إلى 89
-  const price = Math.round(
-    interpolate(frame, [8, 36], [0, 89], {
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp',
-      easing: Easing.out(Easing.cubic),
-    }),
-  );
-  const pulse = 1 + Math.sin(frame / 7) * 0.02;
+  const a = animIn(frame, fps, D.logo);
   return (
-    <Center style={{gap: 30}}>
-      <span
-        style={{
-          fontSize: 96,
-          fontWeight: 800,
-          color: INK,
-          opacity: pre.o,
-          transform: `scale(${pre.sc(0.7)})`,
-        }}
-      >
-        بـ
-      </span>
-      <div
-        style={{
-          position: 'relative',
-          backgroundColor: YELLOW,
-          borderRadius: 48,
-          padding: '24px 96px',
-          opacity: box.o,
-          transform: `scale(${frame < 38 ? box.sc(0.55) : pulse})`,
-          boxShadow: SHADOW_DEEP,
-        }}
-      >
-        <span
-          style={{
-            fontSize: 300,
-            fontWeight: 800,
-            color: INK,
-            lineHeight: 1,
-            direction: 'ltr',
-            display: 'block',
-          }}
-        >
-          {price}
-        </span>
-      </div>
-      <span
-        style={{
-          fontSize: 96,
-          fontWeight: 800,
-          color: INK,
-          opacity: q.o,
-          transform: `scale(${q.sc(0.7)})`,
-        }}
-      >
-        ريال؟
-      </span>
-    </Center>
-  );
-};
-
-// ===== المشهد 2: عنوان "تحصل على:" =====
-const SceneHeader: React.FC = () => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const p = animIn(frame, fps, 0);
-  return (
-    <Center style={{justifyContent: 'flex-start', paddingTop: 360}}>
-      <div
-        style={{
-          backgroundColor: PINK,
-          borderRadius: 30,
-          padding: '22px 64px',
-          opacity: p.o,
-          transform: `scale(${p.sc(0.7)}) rotate(${interpolate(p.s, [0, 1], [-4, 0])}deg)`,
-          boxShadow: SHADOW_SOFT,
-        }}
-      >
-        <span style={{fontSize: 150, fontWeight: 800, color: INK}}>تحصل على:</span>
-      </div>
-    </Center>
-  );
-};
-
-// ===== المشاهد 3-6: قائمة المميزات (بناء بلوكات متراكمة، لا تختفي) =====
-const features = [
-  {t: '7 دورات متكاملة', c: BLUE, sub: ''},
-  {t: '6 كتيبات', c: PINK, sub: 'منها الأكواد السرية'},
-  {t: 'واجب يتقيّم + دعم واتساب', c: BLUE, sub: ''},
-  {t: 'شهادة + دخول مدى الحياة', c: BLUE, sub: 'الأكثر قيمة', big: true},
-];
-const STAGGER = 50; // مسافة ظهور كل ميزة (frames)
-
-const SceneFeatures: React.FC = () => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  return (
-    <AbsoluteFill
-      style={{
-        justifyContent: 'center',
-        alignItems: 'flex-start', // يمين الشاشة (RTL)
-        flexDirection: 'column',
-        gap: 34,
-        padding: '0 80px',
-      }}
-    >
-      {features.map((r, i) => {
-        const a = animIn(frame, fps, i * STAGGER);
-        const big = !!r.big;
-        const circle = big ? 118 : 96;
-        return (
-          <div
-            key={i}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 32,
-              width: big ? '100%' : 'auto', // آخر بلوك أطول من البقية
-              backgroundColor: big ? BLUE : WHITE,
-              borderRadius: big ? 44 : 34,
-              padding: big ? '44px 56px' : '26px 40px',
-              boxShadow: big ? '0 24px 55px rgba(10,160,253,0.4)' : SHADOW_SOFT,
-              opacity: a.o,
-              // تطلع من يمين الشاشة وتستقر في مكانها
-              transform: `translateX(${a.tx(220)}px) scale(${a.sc(0.9)})`,
-            }}
-          >
-            <div
-              style={{
-                width: circle,
-                height: circle,
-                borderRadius: '50%',
-                backgroundColor: big ? YELLOW : r.c,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                boxShadow: big ? '0 10px 24px rgba(0,0,0,0.18)' : `0 8px 20px ${r.c}55`,
-              }}
-            >
-              <span
-                style={{color: big ? INK : WHITE, fontSize: big ? 70 : 58, fontWeight: 800}}
-              >
-                &#10003;
-              </span>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                textAlign: 'right',
-              }}
-            >
-              <span
-                style={{
-                  fontSize: big ? 92 : 78,
-                  fontWeight: 800,
-                  color: big ? WHITE : INK,
-                  lineHeight: 1.15,
-                }}
-              >
-                {r.t}
-              </span>
-              {r.sub ? (
-                <span
-                  style={{
-                    fontSize: big ? 50 : 46,
-                    fontWeight: 800,
-                    color: INK,
-                    backgroundColor: big ? YELLOW : PINK,
-                    borderRadius: 14,
-                    padding: '4px 22px',
-                    alignSelf: 'flex-start',
-                    marginTop: 12,
-                  }}
-                >
-                  {r.sub}
-                </span>
-              ) : null}
-            </div>
-          </div>
-        );
-      })}
-    </AbsoluteFill>
-  );
-};
-
-// ===== المشهد 7: "بسعر وجبة" =====
-const SceneMeal: React.FC = () => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const a = animIn(frame, fps, 0);
-  const b = animIn(frame, fps, 22);
-  return (
-    <Center style={{gap: 28}}>
-      <span
-        style={{
-          fontSize: 110,
-          fontWeight: 800,
-          color: INK,
-          opacity: a.o,
-          transform: `translateY(${a.ty(40)}px)`,
-        }}
-      >
-        كل هذا…
-      </span>
-      <div
-        style={{
-          backgroundColor: PINK,
-          borderRadius: 28,
-          padding: '16px 52px',
-          opacity: b.o,
-          transform: `scale(${b.sc(0.55)}) rotate(${interpolate(b.s, [0, 1], [5, -2])}deg)`,
-          boxShadow: SHADOW_DEEP,
-        }}
-      >
-        <span style={{fontSize: 120, fontWeight: 800, color: INK}}>بسعر وجبة.</span>
-      </div>
-    </Center>
-  );
-};
-
-// ===== المشهد 8: عدّاد المتدربين =====
-const SceneProof: React.FC = () => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const n = Math.round(
-    interpolate(frame, [0, 50], [0, 10000], {
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp',
-      easing: Easing.out(Easing.cubic),
-    }),
-  );
-  const lbl = animIn(frame, fps, 50);
-  const star = animIn(frame, fps, 58);
-  return (
-    <Center style={{gap: 8}}>
-      <div
-        style={{
-          fontSize: 180,
-          fontWeight: 800,
-          color: BLUE,
-          direction: 'ltr',
-          textShadow: '0 12px 30px rgba(10,160,253,0.3)',
-        }}
-      >
-        +{n.toLocaleString('en-US')}
-      </div>
-      <span
-        style={{
-          fontSize: 92,
-          fontWeight: 800,
-          color: INK,
-          opacity: lbl.o,
-          transform: `translateY(${lbl.ty(30)}px)`,
-        }}
-      >
-        متدرب سابق
-      </span>
-      <div
-        style={{
-          fontSize: 70,
-          marginTop: 6,
-          opacity: star.o,
-          transform: `scale(${star.sc(0.6)})`,
-          letterSpacing: 8,
-        }}
-      >
-        ⭐️⭐️⭐️⭐️⭐️
-      </div>
-    </Center>
-  );
-};
-
-// ===== المشهد 9: الختام + الشعار =====
-const SceneCTA: React.FC = () => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const logo = animIn(frame, fps, 0);
-  const btn = animIn(frame, fps, 18);
-  const link = animIn(frame, fps, 32);
-  const pulse = 1 + Math.sin(frame / 6) * 0.03;
-  // لمعة متحركة تمر على الزر
-  const shineX = interpolate(frame % 70, [0, 70], [-260, 520]);
-  return (
-    <Center style={{gap: 52}}>
+    <div style={{display: 'flex', justifyContent: 'center', opacity: a.o}}>
       <Img
         src={staticFile('logo.png')}
         style={{
-          width: 520,
-          opacity: logo.o,
-          transform: `scale(${logo.sc(0.7)})`,
-          filter: 'drop-shadow(0 16px 32px rgba(25,24,24,0.18))',
+          height: 170,
+          transform: `scale(${a.sc(0.7)}) translateY(${a.ty(-30)}px)`,
+          filter: 'drop-shadow(0 10px 22px rgba(0,0,0,0.14))',
         }}
       />
-      <div
-        style={{
-          position: 'relative',
-          overflow: 'hidden',
-          backgroundColor: BLUE,
-          color: WHITE,
-          padding: '30px 76px',
-          borderRadius: 70,
-          fontSize: 84,
-          fontWeight: 800,
-          opacity: btn.o,
-          transform: `scale(${btn.o < 1 ? btn.sc(0.7) : pulse})`,
-          boxShadow: '0 20px 45px rgba(10,160,253,0.4)',
-        }}
-      >
-        سجّل الحين
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: shineX,
-            width: 80,
-            height: '100%',
-            background:
-              'linear-gradient(100deg, transparent, rgba(255,255,255,0.55), transparent)',
-            transform: 'skewX(-18deg)',
-          }}
-        />
-      </div>
-      <span
-        style={{
-          fontSize: 56,
-          fontWeight: 800,
-          color: INK,
-          opacity: link.o,
-          transform: `translateY(${link.ty(20)}px)`,
-        }}
-      >
-        الرابط بالبايو 👆
-      </span>
-    </Center>
+    </div>
   );
 };
 
-// ===== شريط تقدّم الفيديو =====
+// ===== بانر العنوان =====
+const TitleBanner: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const a = animIn(frame, fps, D.title);
+  const shineX = interpolate(frame % 110, [0, 110], [-260, 1000]);
+  return (
+    <div
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        background: `linear-gradient(95deg, ${PURPLE}, #2563EB)`,
+        borderRadius: 38,
+        padding: '34px 40px',
+        textAlign: 'center',
+        boxShadow: '0 20px 45px rgba(76,29,180,0.35)',
+        opacity: a.o,
+        transform: `scale(${a.sc(0.85)})`,
+      }}
+    >
+      <span style={{fontSize: 108, fontWeight: 800, color: WHITE, lineHeight: 1}}>
+        معسكر كانفا
+      </span>
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: shineX,
+          width: 120,
+          height: '100%',
+          background:
+            'linear-gradient(100deg, transparent, rgba(255,255,255,0.4), transparent)',
+          transform: 'skewX(-18deg)',
+        }}
+      />
+    </div>
+  );
+};
+
+// ===== كرت السعر (أحمر، طويل، يسار) =====
+const PriceCard: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const a = animIn(frame, fps, D.price);
+  const pulse = 1 + Math.sin(frame / 12) * 0.02;
+  return (
+    <div
+      style={{
+        width: 300,
+        flexShrink: 0,
+        background: `linear-gradient(180deg, #EE2330, ${RED})`,
+        borderRadius: 38,
+        padding: '34px 18px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        boxShadow: '0 22px 50px rgba(225,29,42,0.4)',
+        opacity: a.o,
+        transform: `translateX(${a.tx(-180)}px) scale(${frame > 50 ? pulse : a.sc(0.85)})`,
+      }}
+    >
+      <CartIcon size={78} color={WHITE} />
+      <div style={{textAlign: 'center', color: WHITE}}>
+        <div style={{fontSize: 48, fontWeight: 800}}>السعر</div>
+        <div style={{fontSize: 176, fontWeight: 800, lineHeight: 0.95}}>89</div>
+        <div style={{fontSize: 56, fontWeight: 800, marginTop: -4}}>ريال</div>
+      </div>
+      <div
+        style={{
+          fontSize: 34,
+          fontWeight: 800,
+          color: 'rgba(255,255,255,0.92)',
+          textDecoration: 'line-through',
+          textDecorationThickness: 3,
+        }}
+      >
+        بدل 99 ريال
+      </div>
+    </div>
+  );
+};
+
+// ===== بلوك ميزة (أيقونة | فاصل | نص) =====
+const FeatureBlock: React.FC<{
+  bg: string;
+  textColor: string;
+  divider: string;
+  icon: React.ReactNode;
+  text: string;
+  delay: number;
+}> = ({bg, textColor, divider, icon, text, delay}) => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const a = animIn(frame, fps, delay);
+  return (
+    <div
+      style={{
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 24,
+        background: bg,
+        borderRadius: 32,
+        padding: '20px 30px',
+        boxShadow: SHADOW,
+        opacity: a.o,
+        transform: `translateX(${a.tx(200)}px) scale(${a.sc(0.92)})`,
+      }}
+    >
+      <div style={{flexShrink: 0, display: 'flex', alignItems: 'center'}}>{icon}</div>
+      <div style={{width: 3, height: 70, background: divider, borderRadius: 3, flexShrink: 0}} />
+      <div style={{flex: 1, textAlign: 'center'}}>
+        <span style={{fontSize: 58, fontWeight: 800, color: textColor, lineHeight: 1.18}}>
+          {text}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+// ===== الصف الرئيسي: مميزات (يمين) + سعر (يسار) =====
+const MainRow: React.FC = () => (
+  <div style={{display: 'flex', flexDirection: 'row', gap: 24, width: '100%', alignItems: 'stretch'}}>
+    <div style={{flex: 1, display: 'flex', flexDirection: 'column', gap: 20}}>
+      <FeatureBlock
+        delay={D.feat[0]}
+        bg={YELLOW}
+        textColor={INK}
+        divider="rgba(0,0,0,0.18)"
+        icon={<PlayIcon size={58} color={INK} />}
+        text="دورة مسجلة"
+      />
+      <FeatureBlock
+        delay={D.feat[1]}
+        bg={PURPLE}
+        textColor={WHITE}
+        divider="rgba(255,255,255,0.45)"
+        icon={<ClockIcon size={58} color={WHITE} />}
+        text="أكثر من 14 ساعة تدريبية"
+      />
+      <FeatureBlock
+        delay={D.feat[2]}
+        bg={SALMON}
+        textColor={WHITE}
+        divider="rgba(255,255,255,0.55)"
+        icon={<CheckBadge size={64} />}
+        text="تبقى معاك مدى الحياة"
+      />
+    </div>
+    <PriceCard />
+  </div>
+);
+
+// ===== بلوك سفلي (أيقونة فوق + نص) =====
+const BottomBlock: React.FC<{icon: React.ReactNode; text: string; delay: number}> = ({
+  icon,
+  text,
+  delay,
+}) => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const a = animIn(frame, fps, delay);
+  return (
+    <div
+      style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 16,
+        background: BLUE,
+        borderRadius: 30,
+        padding: '26px 18px',
+        boxShadow: '0 16px 36px rgba(47,107,228,0.32)',
+        opacity: a.o,
+        transform: `translateY(${a.ty(40)}px) scale(${a.sc(0.8)})`,
+      }}
+    >
+      <div
+        style={{
+          width: 84,
+          height: 84,
+          borderRadius: 24,
+          background: 'rgba(255,255,255,0.18)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {icon}
+      </div>
+      <span style={{fontSize: 42, fontWeight: 800, color: WHITE, textAlign: 'center', lineHeight: 1.25}}>
+        {text}
+      </span>
+    </div>
+  );
+};
+
+const BottomRow: React.FC = () => (
+  <div style={{display: 'flex', flexDirection: 'row', gap: 20, width: '100%', alignItems: 'stretch'}}>
+    <BottomBlock
+      delay={D.bottom[0]}
+      icon={<ChatIcon size={48} color={WHITE} />}
+      text={'دعم خاص للمشتركين\nعبر واتساب'}
+    />
+    <BottomBlock
+      delay={D.bottom[1]}
+      icon={<UsersIcon size={48} color={WHITE} />}
+      text={'قروب خاص\nبالمشتركين'}
+    />
+    <BottomBlock
+      delay={D.bottom[2]}
+      icon={<BookIcon size={48} color={WHITE} />}
+      text={'6 كتيبات PDF\nمجاناً'}
+    />
+  </div>
+);
+
+// ===== زر إسحب =====
+const SwipeBtn: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const a = animIn(frame, fps, D.swipe);
+  const bob = Math.sin(frame / 9) * 8;
+  return (
+    <div style={{display: 'flex', justifyContent: 'center', opacity: a.o}}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 18,
+          background: WHITE,
+          borderRadius: 50,
+          padding: '16px 40px',
+          boxShadow: SHADOW,
+          transform: `scale(${a.sc(0.8)})`,
+        }}
+      >
+        <span style={{fontSize: 46, fontWeight: 800, color: BLUE}}>إسحب</span>
+        <div
+          style={{
+            width: 52,
+            height: 52,
+            borderRadius: '50%',
+            background: BLUE,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transform: `translateX(${bob}px)`,
+          }}
+        >
+          <Svg size={30} color={WHITE}>
+            <line x1="19" y1="12" x2="5" y2="12" />
+            <polyline points="12,19 5,12 12,5" />
+          </Svg>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ===== شريط تقدّم =====
 const ProgressBar: React.FC = () => {
   const frame = useCurrentFrame();
   const {durationInFrames} = useVideoConfig();
-  const w = interpolate(frame, [0, durationInFrames], [0, 100], {
-    extrapolateRight: 'clamp',
-  });
+  const w = interpolate(frame, [0, durationInFrames], [0, 100], {extrapolateRight: 'clamp'});
   return (
     <div
       style={{
@@ -506,87 +481,73 @@ const ProgressBar: React.FC = () => {
         left: 0,
         height: 12,
         width: `${w}%`,
-        background: `linear-gradient(90deg, ${BLUE}, ${PINK}, ${YELLOW})`,
+        background: `linear-gradient(90deg, ${PURPLE}, ${BLUE}, ${YELLOW})`,
         borderTopRightRadius: 8,
-        borderBottomRightRadius: 8,
       }}
     />
   );
 };
 
-// ===== تجميع الإعلان (9 مشاهد) =====
+// ===== البوستر المتحرّك =====
+const Poster: React.FC = () => {
+  const frame = useCurrentFrame();
+  const breathe = 1 + Math.sin(frame / 45) * 0.006;
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '60px',
+        transform: `scale(${breathe})`,
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'stretch',
+          gap: 30,
+          width: '100%',
+          whiteSpace: 'pre-line',
+        }}
+      >
+        <LogoTop />
+        <TitleBanner />
+        <MainRow />
+        <BottomRow />
+        <SwipeBtn />
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+// ===== تجميع الإعلان =====
 const DawraAd: React.FC = () => {
   return (
-    <AbsoluteFill style={{backgroundColor: CREAM, fontFamily: FONT, direction: 'rtl'}}>
+    <AbsoluteFill style={{fontFamily: FONT, direction: 'rtl'}}>
       <FontFace />
-      {/* ===== المؤثرات الصوتية ===== */}
-      <Audio src={staticFile('audio/music.wav')} volume={0.42} />
-      {/* انتقالات */}
-      <Sfx from={0} file="whoosh.wav" volume={0.5} />
-      <Sfx from={60} file="whoosh.wav" volume={0.5} />
-      <Sfx from={340} file="whoosh.wav" volume={0.5} />
-      <Sfx from={410} file="whoosh.wav" volume={0.5} />
-      <Sfx from={470} file="whoosh.wav" volume={0.5} />
-      {/* عدّاد السعر: تكّات ثم رنّة عند 89 */}
-      {[8, 13, 18, 23, 28, 33].map((f) => (
-        <Sfx key={`p${f}`} from={f} file="tick.wav" volume={0.32} />
-      ))}
-      <Sfx from={37} file="ding.wav" volume={0.75} />
-      {/* ظهور كل بلوك في القائمة (آخر بلوك يأخذ رنّة مميّزة) */}
-      <Sfx from={100} file="pop.wav" volume={0.7} />
-      <Sfx from={150} file="pop.wav" volume={0.7} />
-      <Sfx from={200} file="pop.wav" volume={0.7} />
-      <Sfx from={250} file="ding.wav" volume={0.7} />
-      {/* "بسعر وجبة" */}
-      <Sfx from={362} file="pop.wav" volume={0.8} />
-      {/* عدّاد المتدربين: تكّات ثم رنّة + نجوم */}
-      {[412, 420, 428, 436, 444, 452].map((f) => (
-        <Sfx key={`c${f}`} from={f} file="tick.wav" volume={0.3} />
-      ))}
-      <Sfx from={461} file="ding.wav" volume={0.7} />
-      <Sfx from={468} file="pop.wav" volume={0.6} />
-      {/* الختام */}
-      <Sfx from={488} file="success.wav" volume={0.9} />
-      {/* وهج ناعم في المنتصف يعطي عمق */}
+      {/* خلفية ناعمة */}
       <AbsoluteFill
         style={{
-          background:
-            'radial-gradient(circle at 50% 42%, rgba(255,255,255,0.65), rgba(255,255,255,0) 62%)',
+          background: 'radial-gradient(circle at 50% 28%, #FFFFFF, #E7EAEF 72%)',
         }}
       />
       <FloatingShapes />
 
-      <Sequence durationInFrames={60}>
-        <SceneWrap dur={60}>
-          <ScenePrice />
-        </SceneWrap>
-      </Sequence>
-      <Sequence from={60} durationInFrames={40}>
-        <SceneWrap dur={40}>
-          <SceneHeader />
-        </SceneWrap>
-      </Sequence>
-      <Sequence from={100} durationInFrames={240}>
-        <SceneWrap dur={240}>
-          <SceneFeatures />
-        </SceneWrap>
-      </Sequence>
-      <Sequence from={340} durationInFrames={70}>
-        <SceneWrap dur={70}>
-          <SceneMeal />
-        </SceneWrap>
-      </Sequence>
-      <Sequence from={410} durationInFrames={60}>
-        <SceneWrap dur={60}>
-          <SceneProof />
-        </SceneWrap>
-      </Sequence>
-      <Sequence from={470} durationInFrames={70}>
-        <SceneWrap dur={70}>
-          <SceneCTA />
-        </SceneWrap>
-      </Sequence>
+      {/* ===== الصوت ===== */}
+      <Audio src={staticFile('audio/music.wav')} volume={0.42} />
+      <Sfx from={D.logo} file="whoosh.wav" volume={0.5} />
+      <Sfx from={D.title} file="pop.wav" volume={0.7} />
+      <Sfx from={D.price} file="ding.wav" volume={0.75} />
+      {D.feat.map((f) => (
+        <Sfx key={`f${f}`} from={f} file="pop.wav" volume={0.7} />
+      ))}
+      {D.bottom.map((f) => (
+        <Sfx key={`b${f}`} from={f} file="pop.wav" volume={0.6} />
+      ))}
+      <Sfx from={D.swipe} file="success.wav" volume={0.9} />
 
+      <Poster />
       <ProgressBar />
     </AbsoluteFill>
   );
