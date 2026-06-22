@@ -494,58 +494,6 @@ const SceneMeal: React.FC = () => {
   );
 };
 
-// ===== المشهد 8: عدّاد المتدربين =====
-const SceneProof: React.FC = () => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const n = Math.round(
-    interpolate(frame, [0, 50], [0, 10000], {
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp',
-      easing: Easing.out(Easing.cubic),
-    }),
-  );
-  const lbl = animIn(frame, fps, 50);
-  const star = animIn(frame, fps, 58);
-  return (
-    <Center style={{gap: 8}}>
-      <div
-        style={{
-          fontSize: 180,
-          fontWeight: 800,
-          color: BLUE,
-          direction: 'ltr',
-          textShadow: '0 12px 30px rgba(10,160,253,0.3)',
-        }}
-      >
-        +{n.toLocaleString('en-US')}
-      </div>
-      <span
-        style={{
-          fontSize: 92,
-          fontWeight: 800,
-          color: INK,
-          opacity: lbl.o,
-          transform: `translateY(${lbl.ty(30)}px)`,
-        }}
-      >
-        متدرب سابق
-      </span>
-      <div
-        style={{
-          fontSize: 70,
-          marginTop: 6,
-          opacity: star.o,
-          transform: `scale(${star.sc(0.6)})`,
-          letterSpacing: 8,
-        }}
-      >
-        ⭐️⭐️⭐️⭐️⭐️
-      </div>
-    </Center>
-  );
-};
-
 // ===== المشهد 9: الختام + الشعار =====
 const SceneCTA: React.FC = () => {
   const frame = useCurrentFrame();
@@ -784,8 +732,7 @@ const DawraAd: React.FC = () => {
       <Sfx from={60} file="whoosh.wav" volume={0.5} />
       <Sfx from={340} file="whoosh.wav" volume={0.5} />
       <Sfx from={410} file="whoosh.wav" volume={0.5} />
-      <Sfx from={470} file="whoosh.wav" volume={0.5} />
-      <Sfx from={640} file="whoosh.wav" volume={0.5} />
+      <Sfx from={580} file="whoosh.wav" volume={0.5} />
       {/* عدّاد السعر: تكّات ثم رنّة عند 89 */}
       {[8, 13, 18, 23, 28, 33].map((f) => (
         <Sfx key={`p${f}`} from={f} file="tick.wav" volume={0.32} />
@@ -801,19 +748,13 @@ const DawraAd: React.FC = () => {
       <Sfx from={154} file="pop.wav" volume={0.55} />
       {/* "بسعر وجبة" */}
       <Sfx from={362} file="pop.wav" volume={0.8} />
-      {/* عدّاد المتدربين: تكّات ثم رنّة + نجوم */}
-      {[412, 420, 428, 436, 444, 452].map((f) => (
-        <Sfx key={`c${f}`} from={f} file="tick.wav" volume={0.3} />
-      ))}
-      <Sfx from={461} file="ding.wav" volume={0.7} />
-      <Sfx from={468} file="pop.wav" volume={0.6} />
       {/* مشهد الآراء: ظهور البطاقات ثم رنّة العدّاد */}
-      {[478, 487, 496, 505, 514, 523].map((f) => (
+      {[418, 427, 436, 445, 454, 463].map((f) => (
         <Sfx key={`r${f}`} from={f} file="pop.wav" volume={0.45} />
       ))}
-      <Sfx from={542} file="ding.wav" volume={0.7} />
+      <Sfx from={482} file="ding.wav" volume={0.7} />
       {/* الختام */}
-      <Sfx from={658} file="success.wav" volume={0.9} />
+      <Sfx from={598} file="success.wav" volume={0.9} />
       {/* وهج ناعم في المنتصف يعطي عمق */}
       <AbsoluteFill
         style={{
@@ -838,17 +779,12 @@ const DawraAd: React.FC = () => {
           <SceneMeal />
         </SceneWrap>
       </Sequence>
-      <Sequence from={410} durationInFrames={60}>
-        <SceneWrap dur={60}>
-          <SceneProof />
-        </SceneWrap>
-      </Sequence>
-      <Sequence from={470} durationInFrames={170}>
+      <Sequence from={410} durationInFrames={170}>
         <SceneWrap dur={170}>
           <ReviewsScene />
         </SceneWrap>
       </Sequence>
-      <Sequence from={640} durationInFrames={70}>
+      <Sequence from={580} durationInFrames={70}>
         <SceneWrap dur={70}>
           <SceneCTA />
         </SceneWrap>
@@ -865,7 +801,7 @@ export const RemotionRoot: React.FC = () => {
     <Composition
       id="MyComp"
       component={DawraAd}
-      durationInFrames={710}
+      durationInFrames={650}
       fps={30}
       width={1080}
       height={1920}
