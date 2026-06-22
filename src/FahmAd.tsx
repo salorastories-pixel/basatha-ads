@@ -179,8 +179,8 @@ const S5: React.FC = () => {
     <Bg>
       <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 40}}>
         <div style={{textAlign: 'center', opacity: t.opacity, transform: `translateY(${interpolate(t.s, [0, 1], [-30, 0])}px)`}}>
-          <span style={{fontSize: 84, fontWeight: 800, color: INK}}>بسطها يعلّمك </span>
-          <span style={{fontSize: 96, fontWeight: 800, display: 'inline-block'}}><HL bg={YELLOW}>الأساس.</HL></span>
+          <span style={{fontSize: 78, fontWeight: 800, color: INK}}>معسكر كانفا يعلّمك </span>
+          <span style={{fontSize: 90, fontWeight: 800, display: 'inline-block'}}><HL bg={YELLOW}>الأساس.</HL></span>
         </div>
         <Img src={staticFile('package.png')} style={{width: 1060, opacity: pkg.opacity, transform: `translateY(${interpolate(pkg.s, [0, 1], [180, 0])}px) scale(${interpolate(pkg.s, [0, 1], [0.92, 1])})`}} />
       </AbsoluteFill>
@@ -188,17 +188,15 @@ const S5: React.FC = () => {
   );
 };
 
-// ===== المشهد 6: من الصفر لتصميم يفرق + شعار =====
+// ===== المشهد 6: من الصفر لتصميم يفرق =====
 const S6: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const logo = pop(frame, fps, 0);
-  const t = pop(frame, fps, 14);
+  const t = pop(frame, fps, 4);
   return (
     <Bg>
-      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 64}}>
-        <Img src={staticFile('logo.png')} style={{width: 620, opacity: logo.opacity, transform: `scale(${interpolate(logo.s, [0, 1], [0.7, 1])})`}} />
-        <div style={{fontSize: 84, fontWeight: 800, color: INK, textAlign: 'center', opacity: t.opacity, lineHeight: 1.4}}>من الصفر…<br/>لتصميم <span style={{color: BLUE}}>يفرق.</span></div>
+      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
+        <div style={{fontSize: 104, fontWeight: 800, color: INK, textAlign: 'center', opacity: t.opacity, transform: `scale(${interpolate(t.s, [0, 1], [0.8, 1])})`, lineHeight: 1.45}}>من الصفر…<br/>لتصميم <span style={{color: BLUE}}>يفرق.</span></div>
       </AbsoluteFill>
     </Bg>
   );
