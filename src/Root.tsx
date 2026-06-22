@@ -611,6 +611,144 @@ const SceneCTA: React.FC = () => {
   );
 };
 
+// ===== المشهد 9: آراء المشتركين (شبكة بطاقات + عدّاد) =====
+const StarIcon: React.FC<{size: number; color: string}> = ({size, color}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+    <path d="M12 2l2.9 6.26 6.9.6-5.2 4.56 1.55 6.74L12 17.27 5.85 20.76 7.4 14.02 2.2 9.46l6.9-.6z" />
+  </svg>
+);
+const reviews = [
+  {name: 'أماني نجيدة', text: 'المعسكر منظّم ومفيد وسهل التطبيق، شكرًا على تعبكم معنا', c: BLUE},
+  {name: 'حنان', text: 'مجهود رائع وجبّار ومتعوب عليه صدق.. يعطيكم العافية', c: PINK},
+  {name: 'د. سارة', text: 'مجهود جبّار متعوب عليه، ومستمرين بالتحديثات', c: INK},
+  {name: 'أنجيلينا', text: 'معسكر رائع، استفدت منه كثير… شكرًا لمجهودكم', c: PINK},
+  {name: 'روز الحربي', text: 'جهد قوي تشكرون عليه، جزاكم الله خير الجزاء', c: BLUE},
+  {name: 'سعاد', text: 'مفيد وشامل ودايمًا عندكم تحديثات جديدة', c: INK},
+];
+
+const ReviewsScene: React.FC = () => {
+  const frame = useCurrentFrame();
+  const {fps} = useVideoConfig();
+  const title = animIn(frame, fps, 0);
+  const COUNT_FROM = 72;
+  const n = Math.round(
+    interpolate(frame, [COUNT_FROM, COUNT_FROM + 46], [0, 10000], {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+      easing: Easing.out(Easing.cubic),
+    }),
+  );
+  const cnt = animIn(frame, fps, COUNT_FROM - 8);
+  return (
+    <AbsoluteFill
+      style={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',
+        gap: 28,
+        padding: '0 46px',
+      }}
+    >
+      {/* العنوان */}
+      <div
+        style={{
+          background: INK,
+          borderRadius: 24,
+          padding: '16px 50px',
+          opacity: title.o,
+          transform: `scale(${title.sc(0.8)})`,
+          boxShadow: SHADOW_SOFT,
+        }}
+      >
+        <span style={{fontSize: 62, fontWeight: 800, color: WHITE}}>وش قالوا عن المعسكر؟</span>
+      </div>
+
+      {/* شبكة البطاقات */}
+      <div style={{display: 'flex', flexWrap: 'wrap', gap: 20, justifyContent: 'center', width: '100%'}}>
+        {reviews.map((r, i) => {
+          const a = animIn(frame, fps, 8 + i * 7);
+          return (
+            <div
+              key={i}
+              style={{
+                width: '47%',
+                background: WHITE,
+                borderRadius: 26,
+                padding: '24px 26px',
+                boxShadow: SHADOW_SOFT,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12,
+                textAlign: 'right',
+                opacity: a.o,
+                transform: `scale(${a.sc(0.85)})`,
+              }}
+            >
+              <div style={{display: 'flex', alignItems: 'center', gap: 14}}>
+                <div
+                  style={{
+                    width: 58,
+                    height: 58,
+                    borderRadius: '50%',
+                    background: r.c,
+                    color: r.c === YELLOW ? INK : WHITE,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 32,
+                    fontWeight: 800,
+                    flexShrink: 0,
+                  }}
+                >
+                  {r.name.slice(0, 1)}
+                </div>
+                <span style={{fontSize: 36, fontWeight: 800, color: INK}}>{r.name}</span>
+              </div>
+              <span style={{fontSize: 31, fontWeight: 800, color: '#3A3A3A', lineHeight: 1.5}}>
+                {r.text}
+              </span>
+              <div style={{display: 'flex', flexDirection: 'row-reverse', gap: 4, alignSelf: 'flex-start'}}>
+                {[0, 1, 2, 3, 4].map((s) => (
+                  <StarIcon key={s} size={28} color={YELLOW} />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* العدّاد */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 2,
+          opacity: cnt.o,
+          transform: `translateY(${cnt.ty(30)}px)`,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 140,
+            fontWeight: 800,
+            color: BLUE,
+            direction: 'ltr',
+            lineHeight: 1,
+            display: 'flex',
+            alignItems: 'center',
+            textShadow: '0 12px 30px rgba(10,160,253,0.3)',
+          }}
+        >
+          <span style={{fontFamily: 'Arial, Helvetica, sans-serif', marginInlineEnd: 6}}>+</span>
+          <span>{n.toLocaleString('en-US')}</span>
+        </div>
+        <span style={{fontSize: 56, fontWeight: 800, color: INK}}>مشترك في معسكر كانفا</span>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 // ===== شريط تقدّم الفيديو =====
 const ProgressBar: React.FC = () => {
   const frame = useCurrentFrame();
@@ -647,6 +785,7 @@ const DawraAd: React.FC = () => {
       <Sfx from={340} file="whoosh.wav" volume={0.5} />
       <Sfx from={410} file="whoosh.wav" volume={0.5} />
       <Sfx from={470} file="whoosh.wav" volume={0.5} />
+      <Sfx from={640} file="whoosh.wav" volume={0.5} />
       {/* عدّاد السعر: تكّات ثم رنّة عند 89 */}
       {[8, 13, 18, 23, 28, 33].map((f) => (
         <Sfx key={`p${f}`} from={f} file="tick.wav" volume={0.32} />
@@ -668,8 +807,13 @@ const DawraAd: React.FC = () => {
       ))}
       <Sfx from={461} file="ding.wav" volume={0.7} />
       <Sfx from={468} file="pop.wav" volume={0.6} />
+      {/* مشهد الآراء: ظهور البطاقات ثم رنّة العدّاد */}
+      {[478, 487, 496, 505, 514, 523].map((f) => (
+        <Sfx key={`r${f}`} from={f} file="pop.wav" volume={0.45} />
+      ))}
+      <Sfx from={542} file="ding.wav" volume={0.7} />
       {/* الختام */}
-      <Sfx from={488} file="success.wav" volume={0.9} />
+      <Sfx from={658} file="success.wav" volume={0.9} />
       {/* وهج ناعم في المنتصف يعطي عمق */}
       <AbsoluteFill
         style={{
@@ -699,7 +843,12 @@ const DawraAd: React.FC = () => {
           <SceneProof />
         </SceneWrap>
       </Sequence>
-      <Sequence from={470} durationInFrames={70}>
+      <Sequence from={470} durationInFrames={170}>
+        <SceneWrap dur={170}>
+          <ReviewsScene />
+        </SceneWrap>
+      </Sequence>
+      <Sequence from={640} durationInFrames={70}>
         <SceneWrap dur={70}>
           <SceneCTA />
         </SceneWrap>
@@ -716,7 +865,7 @@ export const RemotionRoot: React.FC = () => {
     <Composition
       id="MyComp"
       component={DawraAd}
-      durationInFrames={540}
+      durationInFrames={710}
       fps={30}
       width={1080}
       height={1920}

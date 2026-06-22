@@ -89,7 +89,7 @@ function master(out, {fadeIn = 0, fadeOut = 0} = {}) {
 
 // ============ 1) موسيقى الخلفية (18s, مرحة وخفيفة) ============
 function buildMusic() {
-  const DUR = 18.0;
+  const DUR = 23.7;
   const out = new Float32Array(sec(DUR));
   const beat = 0.5; // 120 BPM
   const bar = beat * 4;
