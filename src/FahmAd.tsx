@@ -67,63 +67,62 @@ const SceneWrap: React.FC<{dur: number; children: React.ReactNode}> = ({dur, chi
 };
 
 // ===== المشهد 1: عندك كانفا =====
-const S1: React.FC = () => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const img = pop(frame, fps, 6);
-  const k = pop(frame, fps, 24);
-  return (
-    <Bg>
-      <div style={{position: 'absolute', top: TOP, width: '100%', textAlign: 'center', zIndex: 5}}>
-        <span style={{fontSize: 110, fontWeight: 800, color: INK}}>عندك </span>
-        <span style={{fontSize: 110, fontWeight: 800, opacity: k.opacity, transform: `scale(${interpolate(k.s, [0, 1], [0.6, 1])})`, display: 'inline-block'}}><HL>كانفا</HL></span>
-      </div>
-      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-        <Img src={staticFile('bad.png')} style={{...designImgStyle, opacity: img.opacity, transform: `scale(${interpolate(img.s, [0, 1], [0.88, 1])})`}} />
-      </AbsoluteFill>
-    </Bg>
-  );
-};
-
-// ===== المشهد 2: تصميمك عادي + أشّارات حمراء (إحداثيات نسبية للصورة) =====
+// ===== المشهد 1+2: عندك كانفا ← تصميمك عادي (صورة ثابتة، يتبدّل النص ثم تظهر الدوائر) =====
 const marks = [
   {type: 'arrow', x: 22, y: 29, label: 'فراغ كبير فاضي', labelPos: 'top'},
   {type: 'circle', x: 16, y: 54, w: 232, h: 94, label: 'غلط إملائي', labelPos: 'top'},
   {type: 'circle', x: 18, y: 67, w: 248, h: 140, label: 'توزيع غير متوازن', labelPos: 'bottom'},
 ];
-const S2: React.FC = () => {
+const S12: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const shake = frame > 70 ? Math.sin(frame * 1.5) * 4 : 0;
+  const img = pop(frame, fps, 6);
+  const k = pop(frame, fps, 24);
+  const SWAP = 62;
+  // تبديل النص فقط (cross-fade) — الصورة ما تتغيّر
+  const t1 = interpolate(frame, [SWAP - 9, SWAP], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const t2 = interpolate(frame, [SWAP, SWAP + 11], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const t2y = interpolate(frame, [SWAP, SWAP + 11], [22, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  // تلاشي الخروج فقط للانتقال للمشهد التالي
+  const exit = interpolate(frame, [138, 150], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
-    <Bg>
-      <div style={{position: 'absolute', top: 150, width: '100%', textAlign: 'center', zIndex: 5}}>
-        <span style={{fontSize: 100, fontWeight: 800, color: INK}}>بس تصميمك </span>
-        <span style={{fontSize: 112, fontWeight: 800, display: 'inline-block'}}><HL>عادي.</HL></span>
-      </div>
-      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-        <div style={{position: 'relative', width: 940, transform: `translateX(${shake}px)`}}>
-          <Img src={staticFile('bad.png')} style={{...designImgStyle, width: '100%'}} />
-          {marks.map((m, i) => {
-            const p = pop(frame, fps, 16 + i * 14);
-            const sc = interpolate(p.s, [0, 1], [0.5, 1]);
-            return (
-              <div key={i} style={{position: 'absolute', left: `${m.x}%`, top: `${m.y}%`, transform: `translate(-50%, -50%) scale(${sc})`, opacity: p.opacity}}>
-                {m.type === 'circle' ? (
-                  <div style={{width: m.w, height: m.h, border: `8px solid ${RED}`, borderRadius: '50%'}} />
-                ) : (
-                  <svg width="130" height="130" viewBox="0 0 100 100">
-                    <path d="M84 84 L34 32" stroke={RED} strokeWidth="9" strokeLinecap="round" fill="none" />
-                    <path d="M34 32 L58 40 M34 32 L42 56" stroke={RED} strokeWidth="9" strokeLinecap="round" fill="none" />
-                  </svg>
-                )}
-                <div style={{position: 'absolute', left: '50%', [m.labelPos === 'bottom' ? 'top' : 'bottom']: 'calc(100% + 12px)', transform: 'translateX(-50%)', whiteSpace: 'nowrap', backgroundColor: RED, color: '#fff', fontSize: 38, fontWeight: 800, padding: '6px 20px', borderRadius: 12, boxShadow: '0 6px 16px rgba(0,0,0,0.2)'}}>{m.label}</div>
-              </div>
-            );
-          })}
+    <AbsoluteFill style={{opacity: exit}}>
+      <Bg>
+        {/* النص: "عندك كانفا" ثم "بس تصميمك عادي" بنفس الموضع */}
+        <div style={{position: 'absolute', top: 150, width: '100%', textAlign: 'center', zIndex: 5, opacity: t1}}>
+          <span style={{fontSize: 110, fontWeight: 800, color: INK}}>عندك </span>
+          <span style={{fontSize: 110, fontWeight: 800, opacity: k.opacity, transform: `scale(${interpolate(k.s, [0, 1], [0.6, 1])})`, display: 'inline-block'}}><HL>كانفا</HL></span>
         </div>
-      </AbsoluteFill>
-    </Bg>
+        <div style={{position: 'absolute', top: 150, width: '100%', textAlign: 'center', zIndex: 5, opacity: t2, transform: `translateY(${t2y}px)`}}>
+          <span style={{fontSize: 100, fontWeight: 800, color: INK}}>بس تصميمك </span>
+          <span style={{fontSize: 112, fontWeight: 800, display: 'inline-block'}}><HL>عادي.</HL></span>
+        </div>
+        {/* الصورة ثابتة طوال المشهد */}
+        <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+          <div style={{position: 'relative', width: 940}}>
+            <Img src={staticFile('bad.png')} style={{...designImgStyle, width: '100%', opacity: img.opacity, transform: `scale(${interpolate(img.s, [0, 1], [0.88, 1])})`}} />
+            {/* الدوائر تظهر بعد تبديل النص */}
+            {marks.map((m, i) => {
+              const p = pop(frame, fps, SWAP + 16 + i * 14);
+              const sc = interpolate(p.s, [0, 1], [0.5, 1]);
+              return (
+                <div key={i} style={{position: 'absolute', left: `${m.x}%`, top: `${m.y}%`, transform: `translate(-50%, -50%) scale(${sc})`, opacity: p.opacity}}>
+                  {m.type === 'circle' ? (
+                    <div style={{width: m.w, height: m.h, border: `8px solid ${RED}`, borderRadius: '50%'}} />
+                  ) : (
+                    <svg width="130" height="130" viewBox="0 0 100 100">
+                      <path d="M84 84 L34 32" stroke={RED} strokeWidth="9" strokeLinecap="round" fill="none" />
+                      <path d="M34 32 L58 40 M34 32 L42 56" stroke={RED} strokeWidth="9" strokeLinecap="round" fill="none" />
+                    </svg>
+                  )}
+                  <div style={{position: 'absolute', left: '50%', [m.labelPos === 'bottom' ? 'top' : 'bottom']: 'calc(100% + 12px)', transform: 'translateX(-50%)', whiteSpace: 'nowrap', backgroundColor: RED, color: '#fff', fontSize: 38, fontWeight: 800, padding: '6px 20px', borderRadius: 12, boxShadow: '0 6px 16px rgba(0,0,0,0.2)'}}>{m.label}</div>
+                </div>
+              );
+            })}
+          </div>
+        </AbsoluteFill>
+      </Bg>
+    </AbsoluteFill>
   );
 };
 
@@ -250,14 +249,16 @@ export const FahmAd: React.FC = () => {
       {/* ===== الصوت ===== */}
       <Audio src={staticFile('audio/music.wav')} volume={musicVol} />
       {/* انتقالات بين المشاهد */}
-      {[60, 150, 210, 285, 360, 405].map((f) => (
+      {[150, 210, 285, 360, 405].map((f) => (
         <Sfx key={`w${f}`} from={f} file="whoosh.wav" volume={0.5} />
       ))}
-      {/* مشهد 1: ظهور الصورة + هايلايت "كانفا" */}
+      {/* مشهد 1+2: ظهور الصورة + هايلايت "كانفا" */}
       <Sfx from={8} file="pop.wav" volume={0.6} />
       <Sfx from={30} file="ding.wav" volume={0.6} />
-      {/* مشهد 2: علامات حمراء على الأخطاء */}
-      {[72, 84, 96, 108].map((f) => (
+      {/* تبديل النص لـ "تصميمك عادي" */}
+      <Sfx from={62} file="whoosh.wav" volume={0.35} />
+      {/* ظهور الدوائر الحمراء على الأخطاء */}
+      {[78, 92, 106].map((f) => (
         <Sfx key={`m${f}`} from={f} file="pop.wav" volume={0.55} />
       ))}
       {/* مشهد 4: كشف "الفهم" */}
@@ -268,8 +269,7 @@ export const FahmAd: React.FC = () => {
       <Sfx from={409} file="pop.wav" volume={0.7} />
       <Sfx from={427} file="success.wav" volume={0.9} />
 
-      <Sequence durationInFrames={60}><SceneWrap dur={60}><S1 /></SceneWrap></Sequence>
-      <Sequence from={60} durationInFrames={90}><SceneWrap dur={90}><S2 /></SceneWrap></Sequence>
+      <Sequence durationInFrames={150}><S12 /></Sequence>
       <Sequence from={150} durationInFrames={60}><SceneWrap dur={60}><S3 /></SceneWrap></Sequence>
       <Sequence from={210} durationInFrames={75}><SceneWrap dur={75}><S4 /></SceneWrap></Sequence>
       <Sequence from={285} durationInFrames={75}><SceneWrap dur={75}><S5 /></SceneWrap></Sequence>
