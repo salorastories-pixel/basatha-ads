@@ -127,49 +127,45 @@ const S12: React.FC = () => {
 };
 
 // ===== المشهد 3: انتقال swipe (العادي يطلع، الحلو يدخل) =====
-const S3: React.FC = () => {
+// ===== المشهد 3+4: شوف الفرق ← الفهم (الحلو يثبت، يتبدّل النص ثم اللمعة) =====
+const S34: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const sw = spring({frame: frame - 6, fps, config: {damping: 18, stiffness: 90}});
   const badX = interpolate(sw, [0, 1], [0, -1300]);
   const goodX = interpolate(sw, [0, 1], [1300, 0]);
-  const t = pop(frame, fps, 30);
+  const SWAP = 58;
+  // النص: "شوف الفرق" ثم "الفرق في الفهم" بنفس الموضع
+  const t1 = interpolate(frame, [8, 20, SWAP - 9, SWAP], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const l1 = interpolate(frame, [SWAP, SWAP + 11], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const l2 = pop(frame, fps, SWAP + 14);
+  // اللمعة بعد تبديل النص — الصورة ثابتة
+  const shineX = interpolate(frame, [SWAP + 30, SWAP + 70], [-400, 1200], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  // دخول/خروج ناعم (الصورة نفسها لا تتحرّك بعد دخولها)
+  const vis = interpolate(frame, [0, 10, 123, 135], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
-    <Bg>
-      <div style={{position: 'absolute', top: TOP, width: '100%', textAlign: 'center', zIndex: 5, opacity: t.opacity}}>
-        <span style={{fontSize: 104, fontWeight: 800, color: INK}}>شوف الفرق</span>
-      </div>
-      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-        <Img src={staticFile('bad.png')} style={{...designImgStyle, position: 'absolute', transform: `translateX(${badX}px) rotate(${interpolate(sw, [0, 1], [0, -8])}deg)`}} />
-        <Img src={staticFile('good.png')} style={{...designImgStyle, position: 'absolute', transform: `translateX(${goodX}px)`}} />
-      </AbsoluteFill>
-    </Bg>
-  );
-};
-
-// ===== المشهد 4: الفرق في الفهم + لمعة =====
-const S4: React.FC = () => {
-  const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const img = pop(frame, fps, 0);
-  const l1 = pop(frame, fps, 14);
-  const l2 = pop(frame, fps, 30);
-  const shineX = interpolate(frame, [20, 60], [-400, 1200], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  return (
-    <Bg>
-      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-        <div style={{position: 'relative', overflow: 'hidden', borderRadius: 30, opacity: img.opacity, boxShadow: '0 24px 70px rgba(0,0,0,0.20)', marginTop: 120}}>
-          <Img src={staticFile('good.png')} style={{width: 900, display: 'block'}} />
-          <div style={{position: 'absolute', top: 0, left: shineX, width: 170, height: '100%', background: 'linear-gradient(105deg, transparent, rgba(255,255,255,0.55), transparent)', transform: 'skewX(-18deg)'}} />
+    <AbsoluteFill style={{opacity: vis}}>
+      <Bg>
+        {/* النص */}
+        <div style={{position: 'absolute', top: TOP, width: '100%', textAlign: 'center', zIndex: 5, opacity: t1}}>
+          <span style={{fontSize: 104, fontWeight: 800, color: INK}}>شوف الفرق</span>
         </div>
-      </AbsoluteFill>
-      <div style={{position: 'absolute', top: TOP, width: '100%', textAlign: 'center', zIndex: 5}}>
-        <div style={{fontSize: 82, fontWeight: 800, color: INK, opacity: l1.opacity}}>الفرق مو في كانفا…</div>
-        <div style={{marginTop: 20, opacity: l2.opacity, transform: `scale(${interpolate(l2.s, [0, 1], [0.6, 1])})`}}>
-          <span style={{fontSize: 96, fontWeight: 800}}>في <HL bg={YELLOW}>الفهم.</HL></span>
+        <div style={{position: 'absolute', top: TOP, width: '100%', textAlign: 'center', zIndex: 5, opacity: l1}}>
+          <div style={{fontSize: 82, fontWeight: 800, color: INK}}>الفرق مو في كانفا…</div>
+          <div style={{marginTop: 20, opacity: l2.opacity, transform: `scale(${interpolate(l2.s, [0, 1], [0.6, 1])})`}}>
+            <span style={{fontSize: 96, fontWeight: 800}}>في <HL bg={YELLOW}>الفهم.</HL></span>
+          </div>
         </div>
-      </div>
-    </Bg>
+        {/* الصور: العادي يطلع، الحلو يدخل ويثبت مع اللمعة */}
+        <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+          <Img src={staticFile('bad.png')} style={{...designImgStyle, position: 'absolute', transform: `translateX(${badX}px) rotate(${interpolate(sw, [0, 1], [0, -8])}deg)`}} />
+          <div style={{position: 'absolute', overflow: 'hidden', width: 940, borderRadius: 30, boxShadow: '0 24px 70px rgba(0,0,0,0.20)', transform: `translateX(${goodX}px)`}}>
+            <Img src={staticFile('good.png')} style={{width: '100%', display: 'block'}} />
+            <div style={{position: 'absolute', top: 0, left: shineX, width: 170, height: '100%', background: 'linear-gradient(105deg, transparent, rgba(255,255,255,0.55), transparent)', transform: 'skewX(-18deg)'}} />
+          </div>
+        </AbsoluteFill>
+      </Bg>
+    </AbsoluteFill>
   );
 };
 
@@ -249,7 +245,7 @@ export const FahmAd: React.FC = () => {
       {/* ===== الصوت ===== */}
       <Audio src={staticFile('audio/music.wav')} volume={musicVol} />
       {/* انتقالات بين المشاهد */}
-      {[150, 210, 285, 360, 405].map((f) => (
+      {[150, 285, 360, 405].map((f) => (
         <Sfx key={`w${f}`} from={f} file="whoosh.wav" volume={0.5} />
       ))}
       {/* مشهد 1+2: ظهور الصورة + هايلايت "كانفا" */}
@@ -261,8 +257,9 @@ export const FahmAd: React.FC = () => {
       {[78, 92, 106].map((f) => (
         <Sfx key={`m${f}`} from={f} file="pop.wav" volume={0.55} />
       ))}
-      {/* مشهد 4: كشف "الفهم" */}
-      <Sfx from={240} file="ding.wav" volume={0.7} />
+      {/* مشهد 3+4: تبديل النص لـ "الفهم" ثم اللمعة */}
+      <Sfx from={208} file="ding.wav" volume={0.7} />
+      <Sfx from={238} file="whoosh.wav" volume={0.3} />
       {/* مشهد 5: نزول البكج */}
       <Sfx from={293} file="pop.wav" volume={0.75} />
       {/* مشهد 7: السعر + زر التسجيل */}
@@ -270,8 +267,7 @@ export const FahmAd: React.FC = () => {
       <Sfx from={427} file="success.wav" volume={0.9} />
 
       <Sequence durationInFrames={150}><S12 /></Sequence>
-      <Sequence from={150} durationInFrames={60}><SceneWrap dur={60}><S3 /></SceneWrap></Sequence>
-      <Sequence from={210} durationInFrames={75}><SceneWrap dur={75}><S4 /></SceneWrap></Sequence>
+      <Sequence from={150} durationInFrames={135}><S34 /></Sequence>
       <Sequence from={285} durationInFrames={75}><SceneWrap dur={75}><S5 /></SceneWrap></Sequence>
       <Sequence from={360} durationInFrames={45}><SceneWrap dur={45}><S6 /></SceneWrap></Sequence>
       <Sequence from={405} durationInFrames={90}><SceneWrap dur={90}><S7 /></SceneWrap></Sequence>
