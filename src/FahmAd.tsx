@@ -91,17 +91,17 @@ const S12: React.FC = () => {
   const t1 = interpolate(frame, [SWAP - 9, SWAP], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const t2 = interpolate(frame, [SWAP, SWAP + 11], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const t2y = interpolate(frame, [SWAP, SWAP + 11], [22, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  // تلاشي الخروج فقط للانتقال للمشهد التالي
-  const exit = interpolate(frame, [138, 150], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  // تتلاشى النص والدوائر فقط قبل السحب — الصورة تبقى ثابتة (بدون وميض)
+  const fadeOut = interpolate(frame, [134, 148], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
-    <AbsoluteFill style={{opacity: exit}}>
+    <AbsoluteFill>
       <Bg>
         {/* النص: "عندك كانفا" ثم "بس تصميمك عادي" بنفس الموضع */}
         <div style={{position: 'absolute', top: 150, width: '100%', textAlign: 'center', zIndex: 5, opacity: t1}}>
           <span style={{fontSize: 110, fontWeight: 800, color: INK}}>عندك </span>
           <span style={{fontSize: 110, fontWeight: 800, opacity: k.opacity, transform: `scale(${interpolate(k.s, [0, 1], [0.6, 1])})`, display: 'inline-block'}}><HL>كانفا</HL></span>
         </div>
-        <div style={{position: 'absolute', top: 150, width: '100%', textAlign: 'center', zIndex: 5, opacity: t2, transform: `translateY(${t2y}px)`}}>
+        <div style={{position: 'absolute', top: 150, width: '100%', textAlign: 'center', zIndex: 5, opacity: t2 * fadeOut, transform: `translateY(${t2y}px)`}}>
           <span style={{fontSize: 100, fontWeight: 800, color: INK}}>بس تصميمك </span>
           <span style={{fontSize: 112, fontWeight: 800, display: 'inline-block'}}><HL>عادي.</HL></span>
         </div>
@@ -114,7 +114,7 @@ const S12: React.FC = () => {
               const p = pop(frame, fps, SWAP + 16 + i * 14);
               const sc = interpolate(p.s, [0, 1], [0.5, 1]);
               return (
-                <div key={i} style={{position: 'absolute', left: `${m.x}%`, top: `${m.y}%`, transform: `translate(-50%, -50%) scale(${sc})`, opacity: p.opacity}}>
+                <div key={i} style={{position: 'absolute', left: `${m.x}%`, top: `${m.y}%`, transform: `translate(-50%, -50%) scale(${sc})`, opacity: p.opacity * fadeOut}}>
                   {m.type === 'circle' ? (
                     <div style={{width: m.w, height: m.h, border: `8px solid ${RED}`, borderRadius: '50%'}} />
                   ) : (
@@ -144,13 +144,13 @@ const S34: React.FC = () => {
   const goodX = interpolate(sw, [0, 1], [1300, 0]);
   const SWAP = 58;
   // النص: "شوف الفرق" ثم "الفرق في الفهم" بنفس الموضع
-  const t1 = interpolate(frame, [8, 20, SWAP - 9, SWAP], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const t1 = interpolate(frame, [2, 12, SWAP - 9, SWAP], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const l1 = interpolate(frame, [SWAP, SWAP + 11], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const l2 = pop(frame, fps, SWAP + 14);
   // اللمعة بعد تبديل النص — الصورة ثابتة
   const shineX = interpolate(frame, [SWAP + 30, SWAP + 70], [-400, 1200], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-  // دخول/خروج ناعم (الصورة نفسها لا تتحرّك بعد دخولها)
-  const vis = interpolate(frame, [0, 10, 123, 135], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  // التصميم السيئ يبدأ ثابتاً (نفس نهاية S12) ثم ينسحب — تلاشي الخروج فقط
+  const vis = interpolate(frame, [123, 135], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return (
     <AbsoluteFill style={{opacity: vis}}>
       <Bg>
