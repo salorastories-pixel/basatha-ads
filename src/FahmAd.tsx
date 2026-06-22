@@ -58,6 +58,14 @@ const Sfx: React.FC<{from: number; file: string; volume?: number}> = ({from, fil
   </Sequence>
 );
 
+// ===== غلاف انتقال ناعم بين المشاهد (fade + blur) =====
+const SceneWrap: React.FC<{dur: number; children: React.ReactNode}> = ({dur, children}) => {
+  const frame = useCurrentFrame();
+  const opacity = interpolate(frame, [0, 12, dur - 12, dur], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const blur = interpolate(frame, [0, 12, dur - 12, dur], [9, 0, 0, 9], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  return <AbsoluteFill style={{opacity, filter: `blur(${blur}px)`}}>{children}</AbsoluteFill>;
+};
+
 // ===== المشهد 1: عندك كانفا =====
 const S1: React.FC = () => {
   const frame = useCurrentFrame();
@@ -89,12 +97,12 @@ const S2: React.FC = () => {
   const shake = frame > 70 ? Math.sin(frame * 1.5) * 4 : 0;
   return (
     <Bg>
-      <div style={{position: 'absolute', top: 120, width: '100%', textAlign: 'center', zIndex: 5}}>
+      <div style={{position: 'absolute', top: 150, width: '100%', textAlign: 'center', zIndex: 5}}>
         <span style={{fontSize: 100, fontWeight: 800, color: INK}}>بس تصميمك </span>
         <span style={{fontSize: 112, fontWeight: 800, display: 'inline-block'}}><HL>عادي.</HL></span>
       </div>
       <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-        <div style={{position: 'relative', width: 880, transform: `translateX(${shake}px)`, marginTop: 90}}>
+        <div style={{position: 'relative', width: 940, transform: `translateX(${shake}px)`}}>
           <Img src={staticFile('bad.png')} style={{...designImgStyle, width: '100%'}} />
           {marks.map((m, i) => {
             const p = pop(frame, fps, 16 + i * 14);
@@ -260,13 +268,13 @@ export const FahmAd: React.FC = () => {
       <Sfx from={409} file="pop.wav" volume={0.7} />
       <Sfx from={427} file="success.wav" volume={0.9} />
 
-      <Sequence durationInFrames={60}><S1 /></Sequence>
-      <Sequence from={60} durationInFrames={90}><S2 /></Sequence>
-      <Sequence from={150} durationInFrames={60}><S3 /></Sequence>
-      <Sequence from={210} durationInFrames={75}><S4 /></Sequence>
-      <Sequence from={285} durationInFrames={75}><S5 /></Sequence>
-      <Sequence from={360} durationInFrames={45}><S6 /></Sequence>
-      <Sequence from={405} durationInFrames={90}><S7 /></Sequence>
+      <Sequence durationInFrames={60}><SceneWrap dur={60}><S1 /></SceneWrap></Sequence>
+      <Sequence from={60} durationInFrames={90}><SceneWrap dur={90}><S2 /></SceneWrap></Sequence>
+      <Sequence from={150} durationInFrames={60}><SceneWrap dur={60}><S3 /></SceneWrap></Sequence>
+      <Sequence from={210} durationInFrames={75}><SceneWrap dur={75}><S4 /></SceneWrap></Sequence>
+      <Sequence from={285} durationInFrames={75}><SceneWrap dur={75}><S5 /></SceneWrap></Sequence>
+      <Sequence from={360} durationInFrames={45}><SceneWrap dur={45}><S6 /></SceneWrap></Sequence>
+      <Sequence from={405} durationInFrames={90}><SceneWrap dur={90}><S7 /></SceneWrap></Sequence>
     </AbsoluteFill>
   );
 };
