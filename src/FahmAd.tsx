@@ -228,7 +228,7 @@ const S7: React.FC = () => {
 };
 
 // ===== تجميع الإعلان =====
-export const FAHM_DURATION = 495;
+export const FAHM_DURATION = 540;
 
 export const FahmAd: React.FC = () => {
   const frame = useCurrentFrame();
@@ -243,7 +243,7 @@ export const FahmAd: React.FC = () => {
       {/* ===== الصوت ===== */}
       <Audio src={staticFile('audio/music.wav')} volume={musicVol} />
       {/* انتقالات بين المشاهد */}
-      {[150, 285, 360, 405].map((f) => (
+      {[150, 285, 360, 450].map((f) => (
         <Sfx key={`w${f}`} from={f} file="whoosh.wav" volume={0.5} />
       ))}
       {/* مشهد 1+2: ظهور الصورة + هايلايت "كانفا" */}
@@ -261,14 +261,14 @@ export const FahmAd: React.FC = () => {
       {/* مشهد 5: نزول البكج */}
       <Sfx from={293} file="pop.wav" volume={0.75} />
       {/* مشهد 7: السعر + زر التسجيل */}
-      <Sfx from={409} file="pop.wav" volume={0.7} />
-      <Sfx from={427} file="success.wav" volume={0.9} />
+      <Sfx from={454} file="pop.wav" volume={0.7} />
+      <Sfx from={472} file="success.wav" volume={0.9} />
 
       <Sequence durationInFrames={150}><S12 /></Sequence>
       <Sequence from={150} durationInFrames={135}><S34 /></Sequence>
       <Sequence from={285} durationInFrames={75}><SceneWrap dur={75}><S5 /></SceneWrap></Sequence>
-      <Sequence from={360} durationInFrames={45}><SceneWrap dur={45}><S6 /></SceneWrap></Sequence>
-      <Sequence from={405} durationInFrames={90}><SceneWrap dur={90}><S7 /></SceneWrap></Sequence>
+      <Sequence from={360} durationInFrames={90}><SceneWrap dur={90}><S6 /></SceneWrap></Sequence>
+      <Sequence from={450} durationInFrames={90}><SceneWrap dur={90}><S7 /></SceneWrap></Sequence>
     </AbsoluteFill>
   );
 };
