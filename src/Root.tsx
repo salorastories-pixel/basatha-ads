@@ -671,7 +671,8 @@ const ReviewsScene: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 2,
+          gap: 6,
+          marginTop: 40,
           opacity: cnt.o,
           transform: `translateY(${cnt.ty(30)}px)`,
         }}
