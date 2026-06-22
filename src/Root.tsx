@@ -20,10 +20,6 @@ const YELLOW = '#FED003';
 const PINK = '#FDA6C9';
 const BLUE = '#0AA0FD';
 const WHITE = '#FFFFFF';
-const PURPLE = '#6D49E8';
-const AMBER = '#F6C453';
-const SALMON = '#EE8497';
-const GREEN = '#22C55E';
 const FONT = 'OYMandisa, "Segoe UI", Tahoma, sans-serif';
 
 const SHADOW_SOFT = '0 18px 45px rgba(25,24,24,0.14)';
@@ -272,7 +268,7 @@ const CheckIcon: React.FC<{size: number; color: string}> = ({size}) => (
       width: size,
       height: size,
       borderRadius: '50%',
-      background: GREEN,
+      background: BLUE,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -302,18 +298,25 @@ type Feat = {
   Icon: React.FC<{size: number; color: string}>;
   badge: boolean;
 };
-// البلوكات الرئيسية (عمود اليمين)
+// البلوكات الرئيسية (عمود اليمين) — ألوان الهوية فقط
 const mainFeatures: Feat[] = [
-  {t: '7 دورات متكاملة', sub: '', bg: AMBER, fg: INK, div: 'rgba(0,0,0,0.2)', ic: INK, Icon: PlayIcon, badge: false},
-  {t: '6 كتيبات رقمية', sub: 'منها الأكواد السرية', bg: PURPLE, fg: WHITE, div: 'rgba(255,255,255,0.45)', ic: WHITE, Icon: BookIcon, badge: false},
-  {t: 'شهادة إتمام', sub: '', bg: SALMON, fg: WHITE, div: 'rgba(255,255,255,0.55)', ic: WHITE, Icon: CheckIcon, badge: false},
+  {t: '7 دورات متكاملة', sub: '', bg: YELLOW, fg: INK, div: 'rgba(0,0,0,0.18)', ic: INK, Icon: PlayIcon, badge: false},
+  {t: '6 كتيبات رقمية', sub: 'منها الأكواد السرية', bg: BLUE, fg: WHITE, div: 'rgba(255,255,255,0.45)', ic: WHITE, Icon: BookIcon, badge: false},
+  {t: 'شهادة إتمام', sub: '', bg: PINK, fg: INK, div: 'rgba(0,0,0,0.18)', ic: INK, Icon: CheckIcon, badge: false},
 ];
-// البلوكات السفلية (٣ خدمات)
-type Bottom = {t: string; Icon: React.FC<{size: number; color: string}>};
+// البلوكات السفلية (٣ خدمات) — ألوان الهوية فقط
+type Bottom = {
+  t: string;
+  bg: string;
+  fg: string;
+  ic: string;
+  badgeBg: string;
+  Icon: React.FC<{size: number; color: string}>;
+};
 const bottomFeatures: Bottom[] = [
-  {t: 'دعم ع الواتساب', Icon: ChatIcon},
-  {t: 'واجب يتقيّم', Icon: ClipboardIcon},
-  {t: 'دخول مدى الحياة', Icon: InfinityIcon},
+  {t: 'دعم ع الواتساب', bg: BLUE, fg: WHITE, ic: WHITE, badgeBg: 'rgba(255,255,255,0.2)', Icon: ChatIcon},
+  {t: 'واجب يتقيّم', bg: PINK, fg: INK, ic: INK, badgeBg: 'rgba(0,0,0,0.08)', Icon: ClipboardIcon},
+  {t: 'دخول مدى الحياة', bg: YELLOW, fg: INK, ic: INK, badgeBg: 'rgba(0,0,0,0.08)', Icon: InfinityIcon},
 ];
 const STAGGER = 18; // مسافة ظهور كل بلوك (frames)
 
@@ -347,7 +350,7 @@ const SceneFeatures: React.FC = () => {
                   }}
                 >
                   <div style={{flexShrink: 0, width: 66, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                    <Icon size={52} color={r.ic} />
+                    <Icon size={r.Icon === CheckIcon ? 64 : 52} color={r.ic} />
                   </div>
                   <div style={{width: 3, height: 56, background: r.div, borderRadius: 3, flexShrink: 0}} />
                   <div style={{flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textAlign: 'right'}}>
@@ -379,7 +382,7 @@ const SceneFeatures: React.FC = () => {
             style={{
               width: 230,
               flexShrink: 0,
-              background: PURPLE,
+              background: INK,
               borderRadius: 30,
               padding: '30px 16px',
               display: 'flex',
@@ -392,7 +395,7 @@ const SceneFeatures: React.FC = () => {
               transform: `translateX(${card.tx(-140)}px) scale(${card.sc(0.9)})`,
             }}
           >
-            <CartIcon size={88} color={WHITE} />
+            <CartIcon size={88} color={YELLOW} />
             <div style={{width: 70, height: 3, background: 'rgba(255,255,255,0.5)', borderRadius: 3}} />
             <span
               style={{
@@ -423,7 +426,7 @@ const SceneFeatures: React.FC = () => {
                   flexDirection: 'column',
                   alignItems: 'center',
                   gap: 12,
-                  background: PURPLE,
+                  background: b.bg,
                   borderRadius: 24,
                   padding: '22px 14px',
                   boxShadow: SHADOW_SOFT,
@@ -436,15 +439,15 @@ const SceneFeatures: React.FC = () => {
                     width: 76,
                     height: 76,
                     borderRadius: 20,
-                    background: 'rgba(255,255,255,0.16)',
+                    background: b.badgeBg,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
                 >
-                  <Icon size={42} color={WHITE} />
+                  <Icon size={42} color={b.ic} />
                 </div>
-                <span style={{fontSize: 36, fontWeight: 800, color: WHITE, textAlign: 'center', lineHeight: 1.25}}>
+                <span style={{fontSize: 36, fontWeight: 800, color: b.fg, textAlign: 'center', lineHeight: 1.25}}>
                   {b.t}
                 </span>
               </div>
