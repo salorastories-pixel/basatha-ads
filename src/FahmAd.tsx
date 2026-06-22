@@ -20,6 +20,14 @@ const BLUE = '#0AA0FD';
 const RED = '#FF3B30';
 const FONT = 'OYMandisa, "Segoe UI", Tahoma, sans-serif';
 
+// ===== سيف زون الريلز (هوامش واجهة إنستقرام) =====
+const SAFE = {top: 250, bottom: 385, left: 70, right: 193};
+const SAFE_W = 1080 - SAFE.left - SAFE.right;
+const SAFE_H = 1920 - SAFE.top - SAFE.bottom;
+const SAFE_FIT = Math.min(SAFE_W / 1080, SAFE_H / 1920);
+const SAFE_X = SAFE.left + (SAFE_W - 1080 * SAFE_FIT) / 2;
+const SAFE_Y = SAFE.top + (SAFE_H - 1920 * SAFE_FIT) / 2;
+
 const FontFace = () => (
   <style>{`@font-face{font-family:'OYMandisa';src:url('${staticFile('OYMandisa.ttf')}') format('truetype');font-weight:normal;font-style:normal;}`}</style>
 );
@@ -264,11 +272,14 @@ export const FahmAd: React.FC = () => {
       <Sfx from={454} file="pop.wav" volume={0.7} />
       <Sfx from={472} file="success.wav" volume={0.9} />
 
-      <Sequence durationInFrames={150}><S12 /></Sequence>
-      <Sequence from={150} durationInFrames={135}><S34 /></Sequence>
-      <Sequence from={285} durationInFrames={75}><SceneWrap dur={75}><S5 /></SceneWrap></Sequence>
-      <Sequence from={360} durationInFrames={90}><SceneWrap dur={90}><S6 /></SceneWrap></Sequence>
-      <Sequence from={450} durationInFrames={90}><SceneWrap dur={90}><S7 /></SceneWrap></Sequence>
+      {/* كل المحتوى محصور داخل السيف زون */}
+      <div style={{position: 'absolute', top: 0, left: 0, width: 1080, height: 1920, transformOrigin: '0 0', transform: `translate(${SAFE_X}px, ${SAFE_Y}px) scale(${SAFE_FIT})`}}>
+        <Sequence durationInFrames={150}><S12 /></Sequence>
+        <Sequence from={150} durationInFrames={135}><S34 /></Sequence>
+        <Sequence from={285} durationInFrames={75}><SceneWrap dur={75}><S5 /></SceneWrap></Sequence>
+        <Sequence from={360} durationInFrames={90}><SceneWrap dur={90}><S6 /></SceneWrap></Sequence>
+        <Sequence from={450} durationInFrames={90}><SceneWrap dur={90}><S7 /></SceneWrap></Sequence>
+      </div>
     </AbsoluteFill>
   );
 };
