@@ -38,10 +38,6 @@ const pop = (frame: number, fps: number, delay: number) => {
   return {opacity, s};
 };
 
-const Dot: React.FC<{style: React.CSSProperties}> = ({style}) => (
-  <div style={{position: 'absolute', width: 26, height: 26, borderRadius: '50%', backgroundColor: BLUE, ...style}} />
-);
-
 // هايلايتر وردي خلف كلمة
 const HL: React.FC<{children: React.ReactNode; bg?: string}> = ({children, bg}) => (
   <span style={{backgroundColor: bg || PINK, color: INK, padding: '4px 22px', borderRadius: 14, display: 'inline-block'}}>{children}</span>
@@ -49,8 +45,11 @@ const HL: React.FC<{children: React.ReactNode; bg?: string}> = ({children, bg}) 
 
 // إطار صورة بحواف دائرية وظل
 const designImgStyle: React.CSSProperties = {
-  width: 820, borderRadius: 28, boxShadow: '0 20px 60px rgba(0,0,0,0.18)',
+  width: 940, borderRadius: 30, boxShadow: '0 24px 70px rgba(0,0,0,0.20)', display: 'block',
 };
+
+// نص علوي يبدأ ~8% من الأعلى
+const TOP = 150;
 
 // ===== مؤثر صوتي عند لقطة =====
 const Sfx: React.FC<{from: number; file: string; volume?: number}> = ({from, file, volume = 1}) => (
@@ -67,23 +66,22 @@ const S1: React.FC = () => {
   const k = pop(frame, fps, 24);
   return (
     <Bg>
-      <div style={{position: 'absolute', top: 140, width: '100%', textAlign: 'center', zIndex: 5}}>
-        <span style={{fontSize: 104, fontWeight: 800, color: INK}}>عندك </span>
-        <span style={{fontSize: 104, fontWeight: 800, opacity: k.opacity, transform: `scale(${interpolate(k.s, [0, 1], [0.6, 1])})`, display: 'inline-block'}}><HL>كانفا</HL></span>
+      <div style={{position: 'absolute', top: TOP, width: '100%', textAlign: 'center', zIndex: 5}}>
+        <span style={{fontSize: 110, fontWeight: 800, color: INK}}>عندك </span>
+        <span style={{fontSize: 110, fontWeight: 800, opacity: k.opacity, transform: `scale(${interpolate(k.s, [0, 1], [0.6, 1])})`, display: 'inline-block'}}><HL>كانفا</HL></span>
       </div>
       <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-        <Img src={staticFile('bad.png')} style={{...designImgStyle, opacity: img.opacity, transform: `scale(${interpolate(img.s, [0, 1], [0.85, 1])})`, marginTop: 120}} />
+        <Img src={staticFile('bad.png')} style={{...designImgStyle, opacity: img.opacity, transform: `scale(${interpolate(img.s, [0, 1], [0.88, 1])})`}} />
       </AbsoluteFill>
     </Bg>
   );
 };
 
-// ===== المشهد 2: تصميمك عادي + أشّارات حمراء =====
+// ===== المشهد 2: تصميمك عادي + أشّارات حمراء (إحداثيات نسبية للصورة) =====
 const marks = [
-  {x: 250, y: 560, label: 'غلط إملائي', dir: 'down'},
-  {x: 560, y: 720, label: 'خط ممل', dir: 'up'},
-  {x: 260, y: 980, label: 'توزيع غير متوازن', dir: 'up'},
-  {x: 600, y: 430, label: 'ألوان باهتة', dir: 'down'},
+  {type: 'arrow', x: 22, y: 29, label: 'فراغ كبير فاضي', labelPos: 'top'},
+  {type: 'circle', x: 16, y: 54, w: 232, h: 94, label: 'غلط إملائي', labelPos: 'top'},
+  {type: 'circle', x: 18, y: 67, w: 248, h: 140, label: 'توزيع غير متوازن', labelPos: 'bottom'},
 ];
 const S2: React.FC = () => {
   const frame = useCurrentFrame();
@@ -91,19 +89,27 @@ const S2: React.FC = () => {
   const shake = frame > 70 ? Math.sin(frame * 1.5) * 4 : 0;
   return (
     <Bg>
-      <div style={{position: 'absolute', top: 60, width: '100%', textAlign: 'center', zIndex: 5}}>
-        <span style={{fontSize: 96, fontWeight: 800, color: INK}}>بس تصميمك </span>
-        <span style={{fontSize: 110, fontWeight: 800, display: 'inline-block'}}><HL>عادي.</HL></span>
+      <div style={{position: 'absolute', top: 120, width: '100%', textAlign: 'center', zIndex: 5}}>
+        <span style={{fontSize: 100, fontWeight: 800, color: INK}}>بس تصميمك </span>
+        <span style={{fontSize: 112, fontWeight: 800, display: 'inline-block'}}><HL>عادي.</HL></span>
       </div>
       <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-        <div style={{position: 'relative', transform: `translateX(${shake}px)`, marginTop: 120}}>
-          <Img src={staticFile('bad.png')} style={{...designImgStyle, width: 760}} />
+        <div style={{position: 'relative', width: 880, transform: `translateX(${shake}px)`, marginTop: 90}}>
+          <Img src={staticFile('bad.png')} style={{...designImgStyle, width: '100%'}} />
           {marks.map((m, i) => {
-            const p = pop(frame, fps, 12 + i * 12);
+            const p = pop(frame, fps, 16 + i * 14);
+            const sc = interpolate(p.s, [0, 1], [0.5, 1]);
             return (
-              <div key={i} style={{position: 'absolute', left: m.x, top: m.y, opacity: p.opacity, transform: `scale(${interpolate(p.s, [0, 1], [0.4, 1])})`}}>
-                <div style={{width: 130, height: 80, border: `7px solid ${RED}`, borderRadius: '50%'}} />
-                <div style={{position: 'absolute', [m.dir === 'down' ? 'top' : 'bottom']: -54, left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap', backgroundColor: RED, color: '#fff', fontSize: 30, fontWeight: 800, padding: '4px 16px', borderRadius: 10}}>{m.label}</div>
+              <div key={i} style={{position: 'absolute', left: `${m.x}%`, top: `${m.y}%`, transform: `translate(-50%, -50%) scale(${sc})`, opacity: p.opacity}}>
+                {m.type === 'circle' ? (
+                  <div style={{width: m.w, height: m.h, border: `8px solid ${RED}`, borderRadius: '50%'}} />
+                ) : (
+                  <svg width="130" height="130" viewBox="0 0 100 100">
+                    <path d="M84 84 L34 32" stroke={RED} strokeWidth="9" strokeLinecap="round" fill="none" />
+                    <path d="M34 32 L58 40 M34 32 L42 56" stroke={RED} strokeWidth="9" strokeLinecap="round" fill="none" />
+                  </svg>
+                )}
+                <div style={{position: 'absolute', left: '50%', [m.labelPos === 'bottom' ? 'top' : 'bottom']: 'calc(100% + 12px)', transform: 'translateX(-50%)', whiteSpace: 'nowrap', backgroundColor: RED, color: '#fff', fontSize: 38, fontWeight: 800, padding: '6px 20px', borderRadius: 12, boxShadow: '0 6px 16px rgba(0,0,0,0.2)'}}>{m.label}</div>
               </div>
             );
           })}
@@ -123,12 +129,12 @@ const S3: React.FC = () => {
   const t = pop(frame, fps, 30);
   return (
     <Bg>
-      <div style={{position: 'absolute', top: 150, width: '100%', textAlign: 'center', zIndex: 5, opacity: t.opacity}}>
-        <span style={{fontSize: 100, fontWeight: 800, color: INK}}>شوف الفرق</span>
+      <div style={{position: 'absolute', top: TOP, width: '100%', textAlign: 'center', zIndex: 5, opacity: t.opacity}}>
+        <span style={{fontSize: 104, fontWeight: 800, color: INK}}>شوف الفرق</span>
       </div>
       <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-        <Img src={staticFile('bad.png')} style={{...designImgStyle, width: 760, position: 'absolute', transform: `translateX(${badX}px) rotate(${interpolate(sw, [0, 1], [0, -8])}deg)`, marginTop: 120}} />
-        <Img src={staticFile('good.png')} style={{...designImgStyle, width: 760, position: 'absolute', transform: `translateX(${goodX}px)`, marginTop: 120}} />
+        <Img src={staticFile('bad.png')} style={{...designImgStyle, position: 'absolute', transform: `translateX(${badX}px) rotate(${interpolate(sw, [0, 1], [0, -8])}deg)`}} />
+        <Img src={staticFile('good.png')} style={{...designImgStyle, position: 'absolute', transform: `translateX(${goodX}px)`}} />
       </AbsoluteFill>
     </Bg>
   );
@@ -145,15 +151,15 @@ const S4: React.FC = () => {
   return (
     <Bg>
       <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-        <div style={{position: 'relative', overflow: 'hidden', borderRadius: 28, marginTop: 200, opacity: img.opacity}}>
-          <Img src={staticFile('good.png')} style={{...designImgStyle, width: 720, display: 'block'}} />
-          <div style={{position: 'absolute', top: 0, left: shineX, width: 160, height: '100%', background: 'linear-gradient(105deg, transparent, rgba(255,255,255,0.55), transparent)', transform: 'skewX(-18deg)'}} />
+        <div style={{position: 'relative', overflow: 'hidden', borderRadius: 30, opacity: img.opacity, boxShadow: '0 24px 70px rgba(0,0,0,0.20)', marginTop: 120}}>
+          <Img src={staticFile('good.png')} style={{width: 900, display: 'block'}} />
+          <div style={{position: 'absolute', top: 0, left: shineX, width: 170, height: '100%', background: 'linear-gradient(105deg, transparent, rgba(255,255,255,0.55), transparent)', transform: 'skewX(-18deg)'}} />
         </div>
       </AbsoluteFill>
-      <div style={{position: 'absolute', top: 150, width: '100%', textAlign: 'center', zIndex: 5}}>
-        <div style={{fontSize: 78, fontWeight: 800, color: INK, opacity: l1.opacity}}>الفرق مو في كانفا…</div>
-        <div style={{marginTop: 18, opacity: l2.opacity, transform: `scale(${interpolate(l2.s, [0, 1], [0.6, 1])})`}}>
-          <span style={{fontSize: 92, fontWeight: 800}}>في <HL bg={YELLOW}>الفهم.</HL></span>
+      <div style={{position: 'absolute', top: TOP, width: '100%', textAlign: 'center', zIndex: 5}}>
+        <div style={{fontSize: 82, fontWeight: 800, color: INK, opacity: l1.opacity}}>الفرق مو في كانفا…</div>
+        <div style={{marginTop: 20, opacity: l2.opacity, transform: `scale(${interpolate(l2.s, [0, 1], [0.6, 1])})`}}>
+          <span style={{fontSize: 96, fontWeight: 800}}>في <HL bg={YELLOW}>الفهم.</HL></span>
         </div>
       </div>
     </Bg>
@@ -168,12 +174,12 @@ const S5: React.FC = () => {
   const t = pop(frame, fps, 0);
   return (
     <Bg>
-      <div style={{position: 'absolute', top: 130, width: '100%', textAlign: 'center', zIndex: 5, opacity: t.opacity}}>
-        <span style={{fontSize: 80, fontWeight: 800, color: INK}}>بسطها يعلّمك </span>
-        <span style={{fontSize: 92, fontWeight: 800, display: 'inline-block'}}><HL bg={YELLOW}>الأساس.</HL></span>
-      </div>
-      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-        <Img src={staticFile('package.png')} style={{width: 1040, opacity: pkg.opacity, transform: `translateY(${interpolate(pkg.s, [0, 1], [220, 0])}px) scale(${interpolate(pkg.s, [0, 1], [0.9, 1])})`, marginTop: 160}} />
+      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 40}}>
+        <div style={{textAlign: 'center', opacity: t.opacity, transform: `translateY(${interpolate(t.s, [0, 1], [-30, 0])}px)`}}>
+          <span style={{fontSize: 84, fontWeight: 800, color: INK}}>بسطها يعلّمك </span>
+          <span style={{fontSize: 96, fontWeight: 800, display: 'inline-block'}}><HL bg={YELLOW}>الأساس.</HL></span>
+        </div>
+        <Img src={staticFile('package.png')} style={{width: 1060, opacity: pkg.opacity, transform: `translateY(${interpolate(pkg.s, [0, 1], [180, 0])}px) scale(${interpolate(pkg.s, [0, 1], [0.92, 1])})`}} />
       </AbsoluteFill>
     </Bg>
   );
@@ -187,9 +193,9 @@ const S6: React.FC = () => {
   const t = pop(frame, fps, 14);
   return (
     <Bg>
-      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 50}}>
-        <Img src={staticFile('logo.png')} style={{width: 560, opacity: logo.opacity, transform: `scale(${interpolate(logo.s, [0, 1], [0.7, 1])})`}} />
-        <div style={{fontSize: 76, fontWeight: 800, color: INK, textAlign: 'center', opacity: t.opacity, lineHeight: 1.4}}>من الصفر…<br/>لتصميم <span style={{color: BLUE}}>يفرق.</span></div>
+      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 64}}>
+        <Img src={staticFile('logo.png')} style={{width: 620, opacity: logo.opacity, transform: `scale(${interpolate(logo.s, [0, 1], [0.7, 1])})`}} />
+        <div style={{fontSize: 84, fontWeight: 800, color: INK, textAlign: 'center', opacity: t.opacity, lineHeight: 1.4}}>من الصفر…<br/>لتصميم <span style={{color: BLUE}}>يفرق.</span></div>
       </AbsoluteFill>
     </Bg>
   );
@@ -204,16 +210,18 @@ const S7: React.FC = () => {
   const pulse = 1 + Math.sin(frame / 6) * 0.04;
   return (
     <Bg>
-      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 50}}>
-        <div style={{backgroundColor: YELLOW, borderRadius: 40, padding: '16px 70px', opacity: price.opacity, transform: `scale(${interpolate(price.s, [0, 1], [0.6, 1])})`}}>
-          <span style={{fontSize: 150, fontWeight: 800, color: INK}}>89 ريال</span>
+      {/* نقاط الهوية ككتل تصميمية كبيرة */}
+      <div style={{position: 'absolute', top: 210, right: 150, width: 90, height: 90, borderRadius: '50%', backgroundColor: YELLOW}} />
+      <div style={{position: 'absolute', bottom: 220, left: 150, width: 90, height: 90, borderRadius: '50%', backgroundColor: PINK}} />
+      <div style={{position: 'absolute', top: 360, left: 120, width: 54, height: 54, borderRadius: '50%', backgroundColor: BLUE}} />
+      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 70}}>
+        <div style={{backgroundColor: YELLOW, borderRadius: 44, padding: '20px 84px', opacity: price.opacity, transform: `scale(${interpolate(price.s, [0, 1], [0.6, 1])})`, boxShadow: '0 18px 45px rgba(0,0,0,0.14)'}}>
+          <span style={{fontSize: 176, fontWeight: 800, color: INK}}>89 ريال</span>
         </div>
-        <div style={{backgroundColor: BLUE, color: '#fff', padding: '30px 80px', borderRadius: 70, fontSize: 90, fontWeight: 800, opacity: btn.opacity, transform: `scale(${btn.opacity < 1 ? interpolate(btn.s, [0, 1], [0.7, 1]) : pulse})`}}>
+        <div style={{backgroundColor: BLUE, color: '#fff', padding: '34px 92px', borderRadius: 80, fontSize: 100, fontWeight: 800, opacity: btn.opacity, transform: `scale(${btn.opacity < 1 ? interpolate(btn.s, [0, 1], [0.7, 1]) : pulse})`, boxShadow: '0 20px 50px rgba(10,160,253,0.4)'}}>
           سجّل الآن
         </div>
       </AbsoluteFill>
-      <Dot style={{top: 240, right: 180}} />
-      <Dot style={{bottom: 240, left: 180}} />
     </Bg>
   );
 };
