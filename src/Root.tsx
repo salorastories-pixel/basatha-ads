@@ -12,6 +12,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
+import {FahmAd, FAHM_DURATION} from './FahmAd';
 
 // ===== هوية بسطها الرسمية =====
 const CREAM = '#F6EBDB';
@@ -796,16 +797,26 @@ const DawraAd: React.FC = () => {
   );
 };
 
-// ===== تسجيل المشهد (لا تغيّر اسم RemotionRoot) =====
+// ===== تسجيل المشاهد (لا تغيّر اسم RemotionRoot) =====
 export const RemotionRoot: React.FC = () => {
   return (
-    <Composition
-      id="MyComp"
-      component={DawraAd}
-      durationInFrames={650}
-      fps={30}
-      width={1080}
-      height={1920}
-    />
+    <>
+      <Composition
+        id="MyComp"
+        component={DawraAd}
+        durationInFrames={650}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="FahmAd"
+        component={FahmAd}
+        durationInFrames={FAHM_DURATION}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+    </>
   );
 };
