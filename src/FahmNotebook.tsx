@@ -180,17 +180,29 @@ const S4: React.FC = () => {
   );
 };
 
-// ===== م5: البكج + "معسكر كانفا يبدا معاك من الصفر" =====
+// ===== م5: النص يظهر كلمة كلمة ثم يطلع البكج =====
+const S5_WORDS: {t: string; hl?: boolean}[] = [
+  {t: 'معسكر'}, {t: 'كانفا'}, {t: 'يبدأ'}, {t: 'معاك'}, {t: 'من'}, {t: 'الصفر', hl: true},
+];
+const WORD_STAGGER = 8;
 const S5: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const pkg = pop(frame, fps, 12);
+  const pkg = pop(frame, fps, S5_WORDS.length * WORD_STAGGER + 4);
   return (
     <NotebookBg>
       <LogoFixed />
-      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 50, paddingTop: 150}}>
-        <div style={{padding: '0 80px', boxSizing: 'border-box', opacity: ease(frame, 0, 8), ...RTL}}>
-          <span style={{fontSize: 74, fontWeight: 800, color: INK, lineHeight: 1.35}}>معسكر كانفا يبدأ معاك من <HLy>الصفر</HLy></span>
+      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 54, paddingTop: 150}}>
+        <div style={{direction: 'rtl', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', columnGap: 20, rowGap: 12, padding: '0 70px', boxSizing: 'border-box'}}>
+          {S5_WORDS.map((w, i) => {
+            const o = ease(frame, i * WORD_STAGGER, 9);
+            const ty = interpolate(o, [0, 1], [28, 0]);
+            return (
+              <span key={i} style={{display: 'inline-block', opacity: o, transform: `translateY(${ty}px)`, fontSize: 74, fontWeight: 800, color: INK}}>
+                {w.hl ? <HLy>{w.t}</HLy> : w.t}
+              </span>
+            );
+          })}
         </div>
         <Img src={staticFile('package.png')} style={{width: 1040, opacity: pkg.opacity, transform: `translateY(${interpolate(pkg.s, [0, 1], [120, 0])}px)`}} />
       </AbsoluteFill>
@@ -223,7 +235,7 @@ const S6: React.FC = () => {
 };
 
 // ===== تجميع الإعلان =====
-export const FAHM_NB_DURATION = 515;
+export const FAHM_NB_DURATION = 535;
 
 export const FahmNotebook: React.FC = () => (
   <AbsoluteFill style={{backgroundColor: CREAM}}>
@@ -231,7 +243,7 @@ export const FahmNotebook: React.FC = () => (
     <Sequence from={60} durationInFrames={90}><S2 /></Sequence>
     <Sequence from={150} durationInFrames={75}><S3 /></Sequence>
     <Sequence from={225} durationInFrames={110}><S4 /></Sequence>
-    <Sequence from={335} durationInFrames={90}><S5 /></Sequence>
-    <Sequence from={425} durationInFrames={90}><S6 /></Sequence>
+    <Sequence from={335} durationInFrames={110}><S5 /></Sequence>
+    <Sequence from={445} durationInFrames={90}><S6 /></Sequence>
   </AbsoluteFill>
 );
