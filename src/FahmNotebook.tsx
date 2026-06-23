@@ -76,18 +76,35 @@ const TapedPhoto: React.FC<{src: string; w: number; rot: number; tape?: boolean}
   </div>
 );
 
-// نص علوي (تحت الشعار) — جملة كاملة في عنصر واحد باتجاه RTL
-const Caption: React.FC<{children: React.ReactNode; frame: number; size?: number}> = ({children, frame, size = 76}) => (
-  <div style={{position: 'absolute', top: 360, width: '100%', padding: '0 90px', boxSizing: 'border-box', opacity: ease(frame, 0, 8), zIndex: 20, ...RTL}}>
-    <span style={{fontSize: size, fontWeight: 800, color: INK, lineHeight: 1.35}}>{children}</span>
-  </div>
-);
-
 const HLp: React.FC<{children: React.ReactNode}> = ({children}) => (
   <span style={{backgroundColor: PINK, color: INK, padding: '2px 18px', borderRadius: '6px 16px 8px 18px', boxDecorationBreak: 'clone', WebkitBoxDecorationBreak: 'clone'}}>{children}</span>
 );
 const HLy: React.FC<{children: React.ReactNode}> = ({children}) => (
   <span style={{backgroundColor: YELLOW, color: INK, padding: '4px 22px', borderRadius: '8px 18px 6px 16px', boxDecorationBreak: 'clone', WebkitBoxDecorationBreak: 'clone'}}>{children}</span>
+);
+
+// ===== ظهور النص كلمة كلمة (RTL، حروف متصلة، الترتيب صحيح) =====
+type W = {t: string; hl?: 'p' | 'y'};
+const WORD_STAGGER = 8;
+const WordReveal: React.FC<{words: W[]; frame: number; size?: number; start?: number}> = ({words, frame, size = 74, start = 6}) => (
+  <div style={{direction: 'rtl', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', columnGap: 18, rowGap: 14, padding: '0 80px', boxSizing: 'border-box'}}>
+    {words.map((w, i) => {
+      const o = ease(frame, start + i * WORD_STAGGER, 9);
+      const ty = interpolate(o, [0, 1], [26, 0]);
+      const inner = w.hl === 'p' ? <HLp>{w.t}</HLp> : w.hl === 'y' ? <HLy>{w.t}</HLy> : w.t;
+      return (
+        <span key={i} style={{display: 'inline-block', opacity: o, transform: `translateY(${ty}px)`, fontSize: size, fontWeight: 800, color: INK}}>
+          {inner}
+        </span>
+      );
+    })}
+  </div>
+);
+// نص علوي يظهر كلمة كلمة (تحت الشعار)
+const CaptionWords: React.FC<{words: W[]; frame: number; size?: number}> = ({words, frame, size = 74}) => (
+  <div style={{position: 'absolute', top: 360, width: '100%', zIndex: 20}}>
+    <WordReveal words={words} frame={frame} size={size} />
+  </div>
 );
 
 // حاوية الصورة الرئيسية — متوسّطة عمودياً ومُكبّرة
@@ -97,7 +114,8 @@ const PhotoStage: React.FC<{children: React.ReactNode}> = ({children}) => (
   </AbsoluteFill>
 );
 
-// ===== م1: العادي يظهر + "عندك كانفا" =====
+// ===== م1: العادي يظهر — "عندك كانفا..." كلمة كلمة =====
+const S1_WORDS: W[] = [{t: 'عندك'}, {t: 'كانفا،'}, {t: 'بس'}, {t: 'تصميمك'}, {t: '«عادي».', hl: 'p'}];
 const S1: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
@@ -105,7 +123,7 @@ const S1: React.FC = () => {
   return (
     <NotebookBg>
       <LogoFixed />
-      <Caption frame={frame}>عندك كانفا، بس تصميمك <HLp>«عادي».</HLp></Caption>
+      <CaptionWords words={S1_WORDS} frame={frame} />
       <PhotoStage>
         <div style={{opacity: p.opacity, transform: `scale(${interpolate(p.s, [0, 1], [0.9, 1])})`}}>
           <TapedPhoto src="bad.png" w={720} rot={-3} />
@@ -120,12 +138,13 @@ const marks = [
   {x: '17%', y: '55%', w: 180, h: 92, label: 'غلط إملائي'},
   {x: '20%', y: '71%', w: 190, h: 96, label: 'توزيع غير متوازن'},
 ];
+const S2_WORDS: W[] = [{t: 'المشكلة'}, {t: 'مو'}, {t: 'فيك.', hl: 'p'}];
 const S2: React.FC = () => {
   const frame = useCurrentFrame();
   return (
     <NotebookBg>
       <LogoFixed />
-      <Caption frame={frame}>المشكلة مو <HLp>فيك.</HLp></Caption>
+      <CaptionWords words={S2_WORDS} frame={frame} />
       <PhotoStage>
         <div style={{position: 'relative'}}>
           <TapedPhoto src="bad.png" w={720} rot={-3} />
@@ -147,26 +166,25 @@ const S2: React.FC = () => {
   );
 };
 
-// ===== م3: "ولا في كانفا" — نص فقط في وسط الشاشة (بدون صورة) =====
+// ===== م3: "ولا في كانفا" — نص فقط في وسط الشاشة، كلمة كلمة =====
+const S3_WORDS: W[] = [{t: 'ولا'}, {t: 'في'}, {t: 'كانفا.'}];
 const S3: React.FC = () => {
   const frame = useCurrentFrame();
-  const o = ease(frame, 4, 10);
   return (
     <NotebookBg>
       <LogoFixed />
-      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', padding: '0 90px'}}>
-        <div style={{opacity: o, transform: `scale(${interpolate(o, [0, 1], [0.9, 1])})`, ...RTL}}>
-          <span style={{fontSize: 110, fontWeight: 800, color: INK, lineHeight: 1.3}}>ولا في كانفا.</span>
-        </div>
+      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+        <WordReveal words={S3_WORDS} frame={frame} size={104} start={4} />
       </AbsoluteFill>
     </NotebookBg>
   );
 };
 
-// ===== م4: "ما تعلّمت الأساس" ثم يظهر التصميم مكبّراً ثم يرجع لحجمه =====
+// ===== م4: "ما تعلّمت الأساس" كلمة كلمة ثم يظهر التصميم مكبّراً ثم يرجع لحجمه =====
+const S4_WORDS: W[] = [{t: 'المشكلة'}, {t: 'إنك'}, {t: 'ما'}, {t: 'تعلّمت'}, {t: 'الأساس.', hl: 'y'}];
 const S4: React.FC = () => {
   const frame = useCurrentFrame();
-  const APPEAR = 24;
+  const APPEAR = 46; // بعد ما تكمل الكلمات
   const appear = ease(frame, APPEAR, 8);
   // يظهر مكبّراً، يثبت ~نص ثانية، ثم يرجع لحجمه الطبيعي
   const scale = interpolate(
@@ -178,7 +196,7 @@ const S4: React.FC = () => {
   return (
     <NotebookBg>
       <LogoFixed />
-      <Caption frame={frame} size={70}>المشكلة إنك ما تعلّمت <HLy>الأساس.</HLy></Caption>
+      <CaptionWords words={S4_WORDS} frame={frame} size={70} />
       <PhotoStage>
         <div style={{opacity: appear, transform: `scale(${scale})`}}>
           <TapedPhoto src="good.png" w={720} rot={2} />
@@ -189,29 +207,16 @@ const S4: React.FC = () => {
 };
 
 // ===== م5: النص يظهر كلمة كلمة ثم يطلع البكج =====
-const S5_WORDS: {t: string; hl?: boolean}[] = [
-  {t: 'معسكر'}, {t: 'كانفا'}, {t: 'يبدأ'}, {t: 'معاك'}, {t: 'من'}, {t: 'الصفر', hl: true},
-];
-const WORD_STAGGER = 8;
+const S5_WORDS: W[] = [{t: 'معسكر'}, {t: 'كانفا'}, {t: 'يبدأ'}, {t: 'معاك'}, {t: 'من'}, {t: 'الصفر', hl: 'y'}];
 const S5: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const pkg = pop(frame, fps, S5_WORDS.length * WORD_STAGGER + 4);
+  const pkg = pop(frame, fps, S5_WORDS.length * WORD_STAGGER + 6);
   return (
     <NotebookBg>
       <LogoFixed />
       <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 54, paddingTop: 150}}>
-        <div style={{direction: 'rtl', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', columnGap: 20, rowGap: 12, padding: '0 70px', boxSizing: 'border-box'}}>
-          {S5_WORDS.map((w, i) => {
-            const o = ease(frame, i * WORD_STAGGER, 9);
-            const ty = interpolate(o, [0, 1], [28, 0]);
-            return (
-              <span key={i} style={{display: 'inline-block', opacity: o, transform: `translateY(${ty}px)`, fontSize: 74, fontWeight: 800, color: INK}}>
-                {w.hl ? <HLy>{w.t}</HLy> : w.t}
-              </span>
-            );
-          })}
-        </div>
+        <WordReveal words={S5_WORDS} frame={frame} size={74} start={0} />
         <Img src={staticFile('package.png')} style={{width: 1040, opacity: pkg.opacity, transform: `translateY(${interpolate(pkg.s, [0, 1], [120, 0])}px)`}} />
       </AbsoluteFill>
     </NotebookBg>
@@ -261,18 +266,25 @@ export const FahmNotebook: React.FC = () => {
       {[60, 150, 225, 335, 445].map((f) => (
         <Sfx key={`w${f}`} from={f} file="whoosh.wav" volume={0.5} />
       ))}
+      {/* تكّة لكل كلمة — كل النصوص تظهر كلمة كلمة */}
+      {[
+        6, 14, 22, 30, 38, // م1
+        66, 74, 82, // م2
+        154, 162, 170, // م3
+        231, 239, 247, 255, 263, // م4
+        335, 343, 351, 359, 367, 375, // م5
+      ].map((f) => (
+        <Sfx key={`tk${f}`} from={f} file="tick.wav" volume={0.34} />
+      ))}
       {/* م1: ظهور التصميم العادي */}
-      <Sfx from={10} file="pop.wav" volume={0.6} />
+      <Sfx from={42} file="pop.wav" volume={0.55} />
       {/* م2: الأشّارات الحمراء على الأخطاء */}
       <Sfx from={73} file="pop.wav" volume={0.5} />
       <Sfx from={89} file="pop.wav" volume={0.5} />
-      {/* م4: ظهور التصميم الاحترافي مكبّراً */}
-      <Sfx from={249} file="ding.wav" volume={0.7} />
-      {/* م5: الكلمات تظهر كلمة كلمة ثم البكج */}
-      {[335, 343, 351, 359, 367, 375].map((f) => (
-        <Sfx key={`t${f}`} from={f} file="tick.wav" volume={0.4} />
-      ))}
-      <Sfx from={388} file="pop.wav" volume={0.7} />
+      {/* م4: ظهور التصميم الاحترافي مكبّراً (بعد الكلمات) */}
+      <Sfx from={271} file="ding.wav" volume={0.7} />
+      {/* م5: البكج */}
+      <Sfx from={389} file="pop.wav" volume={0.7} />
       {/* م6: السعر + زر التسجيل */}
       <Sfx from={452} file="pop.wav" volume={0.7} />
       <Sfx from={468} file="success.wav" volume={0.9} />
