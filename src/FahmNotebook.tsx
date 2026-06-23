@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   AbsoluteFill,
+  Audio,
   Sequence,
   Img,
   staticFile,
@@ -59,6 +60,13 @@ const pop = (frame: number, fps: number, delay: number) => {
   const opacity = ease(frame, delay, 8);
   return {opacity, s};
 };
+
+// ===== مؤثر صوتي عند لقطة =====
+const Sfx: React.FC<{from: number; file: string; volume?: number}> = ({from, file, volume = 1}) => (
+  <Sequence from={from} durationInFrames={90} layout="none">
+    <Audio src={staticFile(`audio/${file}`)} volume={volume} />
+  </Sequence>
+);
 
 // صورة "ملصوقة في الكراسة" (مائلة + شريط لاصق)
 const TapedPhoto: React.FC<{src: string; w: number; rot: number; tape?: boolean}> = ({src, w, rot, tape = true}) => (
@@ -237,13 +245,44 @@ const S6: React.FC = () => {
 // ===== تجميع الإعلان =====
 export const FAHM_NB_DURATION = 535;
 
-export const FahmNotebook: React.FC = () => (
-  <AbsoluteFill style={{backgroundColor: CREAM}}>
-    <Sequence durationInFrames={60}><S1 /></Sequence>
-    <Sequence from={60} durationInFrames={90}><S2 /></Sequence>
-    <Sequence from={150} durationInFrames={75}><S3 /></Sequence>
-    <Sequence from={225} durationInFrames={110}><S4 /></Sequence>
-    <Sequence from={335} durationInFrames={110}><S5 /></Sequence>
-    <Sequence from={445} durationInFrames={90}><S6 /></Sequence>
-  </AbsoluteFill>
-);
+export const FahmNotebook: React.FC = () => {
+  const frame = useCurrentFrame();
+  const musicVol = interpolate(
+    frame,
+    [0, 12, FAHM_NB_DURATION - 24, FAHM_NB_DURATION],
+    [0, 0.4, 0.4, 0],
+    {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'},
+  );
+  return (
+    <AbsoluteFill style={{backgroundColor: CREAM}}>
+      {/* ===== الصوت ===== */}
+      <Audio src={staticFile('audio/music.wav')} volume={musicVol} />
+      {/* انتقالات بين المشاهد */}
+      {[60, 150, 225, 335, 445].map((f) => (
+        <Sfx key={`w${f}`} from={f} file="whoosh.wav" volume={0.5} />
+      ))}
+      {/* م1: ظهور التصميم العادي */}
+      <Sfx from={10} file="pop.wav" volume={0.6} />
+      {/* م2: الأشّارات الحمراء على الأخطاء */}
+      <Sfx from={73} file="pop.wav" volume={0.5} />
+      <Sfx from={89} file="pop.wav" volume={0.5} />
+      {/* م4: ظهور التصميم الاحترافي مكبّراً */}
+      <Sfx from={249} file="ding.wav" volume={0.7} />
+      {/* م5: الكلمات تظهر كلمة كلمة ثم البكج */}
+      {[335, 343, 351, 359, 367, 375].map((f) => (
+        <Sfx key={`t${f}`} from={f} file="tick.wav" volume={0.4} />
+      ))}
+      <Sfx from={388} file="pop.wav" volume={0.7} />
+      {/* م6: السعر + زر التسجيل */}
+      <Sfx from={452} file="pop.wav" volume={0.7} />
+      <Sfx from={468} file="success.wav" volume={0.9} />
+
+      <Sequence durationInFrames={60}><S1 /></Sequence>
+      <Sequence from={60} durationInFrames={90}><S2 /></Sequence>
+      <Sequence from={150} durationInFrames={75}><S3 /></Sequence>
+      <Sequence from={225} durationInFrames={110}><S4 /></Sequence>
+      <Sequence from={335} durationInFrames={110}><S5 /></Sequence>
+      <Sequence from={445} durationInFrames={90}><S6 /></Sequence>
+    </AbsoluteFill>
+  );
+};
