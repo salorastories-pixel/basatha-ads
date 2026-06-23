@@ -139,42 +139,40 @@ const S2: React.FC = () => {
   );
 };
 
-// ===== م3: العادي يطيح ← الاحترافي يطلع =====
+// ===== م3: "ولا في كانفا" — نص فقط في وسط الشاشة (بدون صورة) =====
 const S3: React.FC = () => {
   const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const fall = spring({frame, fps, config: {damping: 20, stiffness: 70}});
-  const badY = interpolate(fall, [0, 1], [0, 1500]);
-  const badRot = interpolate(fall, [0, 1], [-3, 28]);
-  const g = pop(frame, fps, 22);
-  const pulse = frame > 45 ? 1 + Math.sin((frame - 45) / 5) * 0.04 : 1;
+  const o = ease(frame, 4, 10);
   return (
     <NotebookBg>
       <LogoFixed />
-      <Caption frame={frame}>ولا في كانفا.</Caption>
-      <PhotoStage>
-        <div style={{position: 'relative'}}>
-          <div style={{opacity: g.opacity, transform: `scale(${interpolate(g.s, [0, 1], [0.85, 1]) * pulse})`}}>
-            <TapedPhoto src="good.png" w={720} rot={2} />
-          </div>
-          <Img src={staticFile('bad.png')} style={{position: 'absolute', top: 0, left: 0, width: 720, borderRadius: 8, border: '10px solid #fff', boxShadow: '0 14px 40px rgba(0,0,0,0.22)', transform: `translateY(${badY}px) rotate(${badRot}deg)`}} />
+      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', padding: '0 90px'}}>
+        <div style={{opacity: o, transform: `scale(${interpolate(o, [0, 1], [0.9, 1])})`, ...RTL}}>
+          <span style={{fontSize: 110, fontWeight: 800, color: INK, lineHeight: 1.3}}>ولا في كانفا.</span>
         </div>
-      </PhotoStage>
+      </AbsoluteFill>
     </NotebookBg>
   );
 };
 
-// ===== م4: الاحترافي ثابت + "الأساس" =====
+// ===== م4: "ما تعلّمت الأساس" ثم يظهر التصميم مكبّراً ثم يرجع لحجمه =====
 const S4: React.FC = () => {
   const frame = useCurrentFrame();
-  const {fps} = useVideoConfig();
-  const p = pop(frame, fps, 0);
+  const APPEAR = 24;
+  const appear = ease(frame, APPEAR, 8);
+  // يظهر مكبّراً، يثبت ~نص ثانية، ثم يرجع لحجمه الطبيعي
+  const scale = interpolate(
+    frame,
+    [APPEAR, APPEAR + 16, APPEAR + 31, APPEAR + 48],
+    [0.75, 1.2, 1.2, 1.0],
+    {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic)},
+  );
   return (
     <NotebookBg>
       <LogoFixed />
       <Caption frame={frame} size={70}>المشكلة إنك ما تعلّمت <HLy>الأساس.</HLy></Caption>
       <PhotoStage>
-        <div style={{opacity: p.opacity}}>
+        <div style={{opacity: appear, transform: `scale(${scale})`}}>
           <TapedPhoto src="good.png" w={720} rot={2} />
         </div>
       </PhotoStage>
@@ -225,15 +223,15 @@ const S6: React.FC = () => {
 };
 
 // ===== تجميع الإعلان =====
-export const FAHM_NB_DURATION = 495;
+export const FAHM_NB_DURATION = 515;
 
 export const FahmNotebook: React.FC = () => (
   <AbsoluteFill style={{backgroundColor: CREAM}}>
     <Sequence durationInFrames={60}><S1 /></Sequence>
     <Sequence from={60} durationInFrames={90}><S2 /></Sequence>
     <Sequence from={150} durationInFrames={75}><S3 /></Sequence>
-    <Sequence from={225} durationInFrames={90}><S4 /></Sequence>
-    <Sequence from={315} durationInFrames={90}><S5 /></Sequence>
-    <Sequence from={405} durationInFrames={90}><S6 /></Sequence>
+    <Sequence from={225} durationInFrames={110}><S4 /></Sequence>
+    <Sequence from={335} durationInFrames={90}><S5 /></Sequence>
+    <Sequence from={425} durationInFrames={90}><S6 /></Sequence>
   </AbsoluteFill>
 );
