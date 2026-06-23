@@ -19,17 +19,20 @@ const YELLOW = '#FED003';
 const PINK = '#FDA6C9';
 const BLUE = '#0AA0FD';
 const RED = '#FF3B30';
-const FONT = 'OYMandisa, "Segoe UI", Tahoma, sans-serif';
+// خط بسطها + خطوط عربية احتياطية تدعم تشكيل الحروف (shaping)
+const FONT = 'OYMandisa, "Segoe UI", Tahoma, "Arial", sans-serif';
+
+// نمط مشترك يضمن اتجاه ووصل العربي الصحيح
+const RTL: React.CSSProperties = {direction: 'rtl', unicodeBidi: 'plaintext', textAlign: 'center'};
 
 const FontFace = () => (
   <style>{`@font-face{font-family:'OYMandisa';src:url('${staticFile('OYMandisa.ttf')}') format('truetype');font-weight:normal;font-style:normal;}`}</style>
 );
 
-// ===== خلفية الدفتر (ورق مسطّر + هامش وردي) — ثابتة طول الإعلان =====
+// ===== خلفية الدفتر (ورق مسطّر + هامش وردي) =====
 const NotebookBg: React.FC<{children: React.ReactNode}> = ({children}) => (
-  <AbsoluteFill style={{backgroundColor: CREAM, fontFamily: FONT}}>
+  <AbsoluteFill style={{backgroundColor: CREAM, fontFamily: FONT, direction: 'rtl'}}>
     <FontFace />
-    {/* سطور الدفتر */}
     <div style={{position: 'absolute', inset: 0, backgroundImage: `repeating-linear-gradient(${CREAM}, ${CREAM} 78px, ${LINE} 80px)`}} />
     {/* هامش وردي على اليمين */}
     <div style={{position: 'absolute', top: 0, bottom: 0, right: 90, width: 4, backgroundColor: PINK, opacity: 0.5}} />
@@ -37,12 +40,15 @@ const NotebookBg: React.FC<{children: React.ReactNode}> = ({children}) => (
   </AbsoluteFill>
 );
 
-// ===== الشعار الثابت فوق يمين (طول الإعلان) =====
+// ===== الشعار الثابت فوق يمين — على مساحة كريمية نظيفة بدون أي تداخل =====
 const LogoFixed: React.FC = () => (
-  <Img src={staticFile('logo.png')} style={{position: 'absolute', top: 70, right: 130, width: 280, zIndex: 50}} />
+  <>
+    <div style={{position: 'absolute', top: 52, right: 104, width: 336, height: 180, backgroundColor: CREAM, borderRadius: 22, zIndex: 49}} />
+    <Img src={staticFile('logo.png')} style={{position: 'absolute', top: 70, right: 130, width: 280, zIndex: 50}} />
+  </>
 );
 
-// حركة ظهور ناعمة (easing مرن، مو حاد)
+// حركة ظهور ناعمة
 const ease = (frame: number, from: number, dur: number) =>
   interpolate(frame, [from, from + dur], [0, 1], {
     extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic),
@@ -54,26 +60,33 @@ const pop = (frame: number, fps: number, delay: number) => {
   return {opacity, s};
 };
 
-// إطار صورة "ملصوقة في الكراسة" (مائلة + شريط لاصق)
-const TapedPhoto: React.FC<{src: string; w: number; rot: number; scale?: number; tape?: boolean}> = ({src, w, rot, scale = 1, tape = true}) => (
-  <div style={{position: 'relative', transform: `rotate(${rot}deg) scale(${scale})`}}>
-    {tape && <div style={{position: 'absolute', width: 120, height: 44, backgroundColor: 'rgba(253,166,201,0.55)', top: -22, left: '50%', transform: 'translateX(-50%) rotate(-4deg)', zIndex: 2}} />}
+// صورة "ملصوقة في الكراسة" (مائلة + شريط لاصق)
+const TapedPhoto: React.FC<{src: string; w: number; rot: number; tape?: boolean}> = ({src, w, rot, tape = true}) => (
+  <div style={{position: 'relative', transform: `rotate(${rot}deg)`}}>
+    {tape && <div style={{position: 'absolute', width: 130, height: 46, backgroundColor: 'rgba(253,166,201,0.55)', top: -23, left: '50%', transform: 'translateX(-50%) rotate(-4deg)', zIndex: 2}} />}
     <Img src={staticFile(src)} style={{width: w, display: 'block', borderRadius: 8, border: '10px solid #fff', boxShadow: '0 14px 40px rgba(0,0,0,0.22)'}} />
   </div>
 );
 
-// نص علوي (تحت الشعار) — مساحة آمنة، ما يتداخل
-const Caption: React.FC<{children: React.ReactNode; frame: number; size?: number}> = ({children, frame, size = 78}) => (
-  <div style={{position: 'absolute', top: 360, width: '100%', textAlign: 'center', padding: '0 80px', boxSizing: 'border-box', opacity: ease(frame, 0, 8), zIndex: 20}}>
-    <span style={{fontSize: size, fontWeight: 800, color: INK, lineHeight: 1.3}}>{children}</span>
+// نص علوي (تحت الشعار) — جملة كاملة في عنصر واحد باتجاه RTL
+const Caption: React.FC<{children: React.ReactNode; frame: number; size?: number}> = ({children, frame, size = 76}) => (
+  <div style={{position: 'absolute', top: 360, width: '100%', padding: '0 90px', boxSizing: 'border-box', opacity: ease(frame, 0, 8), zIndex: 20, ...RTL}}>
+    <span style={{fontSize: size, fontWeight: 800, color: INK, lineHeight: 1.35}}>{children}</span>
   </div>
 );
 
 const HLp: React.FC<{children: React.ReactNode}> = ({children}) => (
-  <span style={{backgroundColor: PINK, color: INK, padding: '2px 18px', borderRadius: '6px 16px 8px 18px', display: 'inline-block', transform: 'rotate(-1.5deg)'}}>{children}</span>
+  <span style={{backgroundColor: PINK, color: INK, padding: '2px 18px', borderRadius: '6px 16px 8px 18px', boxDecorationBreak: 'clone', WebkitBoxDecorationBreak: 'clone'}}>{children}</span>
 );
 const HLy: React.FC<{children: React.ReactNode}> = ({children}) => (
-  <span style={{backgroundColor: YELLOW, color: INK, padding: '4px 22px', borderRadius: '8px 18px 6px 16px', display: 'inline-block', transform: 'rotate(-1deg)'}}>{children}</span>
+  <span style={{backgroundColor: YELLOW, color: INK, padding: '4px 22px', borderRadius: '8px 18px 6px 16px', boxDecorationBreak: 'clone', WebkitBoxDecorationBreak: 'clone'}}>{children}</span>
+);
+
+// حاوية الصورة الرئيسية — متوسّطة عمودياً ومُكبّرة
+const PhotoStage: React.FC<{children: React.ReactNode}> = ({children}) => (
+  <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
+    <div style={{marginTop: 270}}>{children}</div>
+  </AbsoluteFill>
 );
 
 // ===== م1: العادي يظهر + "عندك كانفا" =====
@@ -84,21 +97,20 @@ const S1: React.FC = () => {
   return (
     <NotebookBg>
       <LogoFixed />
-      <Caption frame={frame}>عندك كانفا. بس تصميمك <HLp>«عادي».</HLp></Caption>
-      <AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 220}}>
+      <Caption frame={frame}>عندك كانفا، بس تصميمك <HLp>«عادي».</HLp></Caption>
+      <PhotoStage>
         <div style={{opacity: p.opacity, transform: `scale(${interpolate(p.s, [0, 1], [0.9, 1])})`}}>
-          <TapedPhoto src="bad.png" w={680} rot={-3} />
+          <TapedPhoto src="bad.png" w={720} rot={-3} />
         </div>
-      </AbsoluteFill>
+      </PhotoStage>
     </NotebookBg>
   );
 };
 
-// ===== م2: العادي + أشّارات حمراء يدوية على الأخطاء =====
+// ===== م2: العادي + أشّارتان حمراوان على الأخطاء (إحداثيات نسبية) =====
 const marks = [
-  {x: '20%', y: '30%', w: 150, h: 80, label: 'غلط إملائي', lx: -120, ly: -10},
-  {x: '16%', y: '58%', w: 130, h: 70, label: 'توزيع غير متوازن', lx: -180, ly: 30},
-  {x: '24%', y: '78%', w: 120, h: 60, label: 'ألوان باهتة', lx: -90, ly: 50},
+  {x: '17%', y: '55%', w: 180, h: 92, label: 'غلط إملائي'},
+  {x: '20%', y: '71%', w: 190, h: 96, label: 'توزيع غير متوازن'},
 ];
 const S2: React.FC = () => {
   const frame = useCurrentFrame();
@@ -106,93 +118,89 @@ const S2: React.FC = () => {
     <NotebookBg>
       <LogoFixed />
       <Caption frame={frame}>المشكلة مو <HLp>فيك.</HLp></Caption>
-      <AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 220}}>
+      <PhotoStage>
         <div style={{position: 'relative'}}>
-          <TapedPhoto src="bad.png" w={680} rot={-3} />
+          <TapedPhoto src="bad.png" w={720} rot={-3} />
           {marks.map((m, i) => {
-            const o = ease(frame, 10 + i * 14, 10);
-            const dash = interpolate(ease(frame, 10 + i * 14, 16), [0, 1], [400, 0]);
+            const o = ease(frame, 12 + i * 16, 12);
+            const dash = interpolate(ease(frame, 12 + i * 16, 18), [0, 1], [m.w * 3, 0]);
             return (
               <div key={i} style={{position: 'absolute', left: m.x, top: m.y, opacity: o}}>
                 <svg width={m.w} height={m.h} style={{position: 'absolute', left: -m.w / 2, top: -m.h / 2, overflow: 'visible'}}>
-                  <ellipse cx={m.w / 2} cy={m.h / 2} rx={m.w / 2 - 4} ry={m.h / 2 - 4} fill="none" stroke={RED} strokeWidth={6} strokeDasharray={400} strokeDashoffset={dash} strokeLinecap="round" />
+                  <ellipse cx={m.w / 2} cy={m.h / 2} rx={m.w / 2 - 5} ry={m.h / 2 - 5} fill="none" stroke={RED} strokeWidth={6} strokeDasharray={m.w * 3} strokeDashoffset={dash} strokeLinecap="round" />
                 </svg>
-                <div style={{position: 'absolute', left: m.lx, top: m.ly, backgroundColor: RED, color: '#fff', fontSize: 26, fontWeight: 800, padding: '4px 14px', borderRadius: 10, whiteSpace: 'nowrap'}}>{m.label}</div>
+                <div style={{position: 'absolute', left: '50%', top: -m.h / 2 - 56, transform: 'translateX(-50%)', backgroundColor: RED, color: '#fff', fontSize: 30, fontWeight: 800, padding: '5px 18px', borderRadius: 12, whiteSpace: 'nowrap', ...RTL}}>{m.label}</div>
               </div>
             );
           })}
         </div>
-      </AbsoluteFill>
+      </PhotoStage>
     </NotebookBg>
   );
 };
 
-// ===== م3: العادي يطيح ← الاحترافي يطلع (نبضة) — انتقال مرن =====
+// ===== م3: العادي يطيح ← الاحترافي يطلع =====
 const S3: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  // العادي يطيح ويدور للأسفل
   const fall = spring({frame, fps, config: {damping: 20, stiffness: 70}});
-  const badY = interpolate(fall, [0, 1], [0, 1400]);
-  const badRot = interpolate(fall, [0, 1], [-3, 30]);
-  // الاحترافي يطلع بنبضة بعد ما يطيح العادي
+  const badY = interpolate(fall, [0, 1], [0, 1500]);
+  const badRot = interpolate(fall, [0, 1], [-3, 28]);
   const g = pop(frame, fps, 22);
   const pulse = frame > 45 ? 1 + Math.sin((frame - 45) / 5) * 0.04 : 1;
   return (
     <NotebookBg>
       <LogoFixed />
       <Caption frame={frame}>ولا في كانفا.</Caption>
-      <AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 220}}>
-        <Img src={staticFile('bad.png')} style={{width: 680, position: 'absolute', borderRadius: 8, border: '10px solid #fff', transform: `translateY(${badY}px) rotate(${badRot}deg)`}} />
-        <div style={{opacity: g.opacity, transform: `scale(${interpolate(g.s, [0, 1], [0.85, 1]) * pulse})`}}>
-          <TapedPhoto src="good.png" w={680} rot={2} />
+      <PhotoStage>
+        <div style={{position: 'relative'}}>
+          <div style={{opacity: g.opacity, transform: `scale(${interpolate(g.s, [0, 1], [0.85, 1]) * pulse})`}}>
+            <TapedPhoto src="good.png" w={720} rot={2} />
+          </div>
+          <Img src={staticFile('bad.png')} style={{position: 'absolute', top: 0, left: 0, width: 720, borderRadius: 8, border: '10px solid #fff', boxShadow: '0 14px 40px rgba(0,0,0,0.22)', transform: `translateY(${badY}px) rotate(${badRot}deg)`}} />
         </div>
-      </AbsoluteFill>
+      </PhotoStage>
     </NotebookBg>
   );
 };
 
-// ===== م4: الاحترافي نظيف ثابت + "الأساس" =====
+// ===== م4: الاحترافي ثابت + "الأساس" =====
 const S4: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const p = pop(frame, fps, 0);
-  const hl = pop(frame, fps, 18);
   return (
     <NotebookBg>
       <LogoFixed />
-      <div style={{position: 'absolute', top: 320, width: '100%', textAlign: 'center', padding: '0 80px', boxSizing: 'border-box', zIndex: 20}}>
-        <span style={{fontSize: 70, fontWeight: 800, color: INK, opacity: ease(frame, 0, 8)}}>المشكلة إنك ما تعلّمت </span>
-        <span style={{display: 'inline-block', opacity: hl.opacity, transform: `scale(${interpolate(hl.s, [0, 1], [0.6, 1])})`}}><HLy>الأساس.</HLy></span>
-      </div>
-      <AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 220}}>
+      <Caption frame={frame} size={70}>المشكلة إنك ما تعلّمت <HLy>الأساس.</HLy></Caption>
+      <PhotoStage>
         <div style={{opacity: p.opacity}}>
-          <TapedPhoto src="good.png" w={660} rot={2} />
+          <TapedPhoto src="good.png" w={720} rot={2} />
         </div>
-      </AbsoluteFill>
+      </PhotoStage>
     </NotebookBg>
   );
 };
 
-// ===== م5: البكج يظهر بحجمه العادي + "معسكر كانفا يبدا معاك من الصفر" =====
+// ===== م5: البكج + "معسكر كانفا يبدا معاك من الصفر" =====
 const S5: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const pkg = pop(frame, fps, 10);
+  const pkg = pop(frame, fps, 12);
   return (
     <NotebookBg>
       <LogoFixed />
-      <div style={{position: 'absolute', top: 300, width: '100%', textAlign: 'center', padding: '0 70px', boxSizing: 'border-box', opacity: ease(frame, 0, 8), zIndex: 20}}>
-        <span style={{fontSize: 76, fontWeight: 800, color: INK, lineHeight: 1.3}}>معسكر كانفا يبدا معاك من <HLy>الصفر</HLy></span>
-      </div>
-      <AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 180}}>
-        <Img src={staticFile('package.png')} style={{width: 1000, opacity: pkg.opacity, transform: `translateY(${interpolate(pkg.s, [0, 1], [120, 0])}px)`}} />
+      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 50, paddingTop: 150}}>
+        <div style={{padding: '0 80px', boxSizing: 'border-box', opacity: ease(frame, 0, 8), ...RTL}}>
+          <span style={{fontSize: 74, fontWeight: 800, color: INK, lineHeight: 1.35}}>معسكر كانفا يبدأ معاك من <HLy>الصفر</HLy></span>
+        </div>
+        <Img src={staticFile('package.png')} style={{width: 1040, opacity: pkg.opacity, transform: `translateY(${interpolate(pkg.s, [0, 1], [120, 0])}px)`}} />
       </AbsoluteFill>
     </NotebookBg>
   );
 };
 
-// ===== م6: السعر + زر "سجّل الحين" مرسوم باليد =====
+// ===== م6: السعر + زر "سجّل الحين" =====
 const S6: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
@@ -202,17 +210,16 @@ const S6: React.FC = () => {
   return (
     <NotebookBg>
       <LogoFixed />
-      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 60}}>
-        <div style={{fontSize: 90, fontWeight: 800, color: INK, opacity: ease(frame, 0, 8)}}>بـ</div>
-        <div style={{opacity: price.opacity, transform: `scale(${interpolate(price.s, [0, 1], [0.6, 1])})`}}>
-          <HLy><span style={{fontSize: 150, fontWeight: 800}}>٨٩ ريال</span></HLy>
+      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'column', gap: 50, paddingTop: 60}}>
+        <div style={{fontSize: 78, fontWeight: 800, color: INK, opacity: ease(frame, 0, 8), ...RTL}}>كل هذا</div>
+        <div style={{opacity: price.opacity, transform: `scale(${interpolate(price.s, [0, 1], [0.6, 1])})`, ...RTL}}>
+          <span style={{fontSize: 150, fontWeight: 800}}><HLy>بـ ٨٩ ريال</HLy></span>
         </div>
-        <div style={{fontSize: 64, fontWeight: 800, color: INK, opacity: ease(frame, 14, 8)}}>بس،</div>
-        <div style={{border: `7px solid ${BLUE}`, color: BLUE, padding: '24px 64px', borderRadius: '30px 40px 28px 38px', fontSize: 84, fontWeight: 800, opacity: btn.opacity, transform: `scale(${btn.opacity < 1 ? interpolate(btn.s, [0, 1], [0.7, 1]) : pulse})`}}>
+        <div style={{fontSize: 60, fontWeight: 800, color: INK, opacity: ease(frame, 14, 8), ...RTL}}>بس، لا تطوّل</div>
+        <div style={{border: `7px solid ${BLUE}`, color: BLUE, padding: '24px 70px', borderRadius: '30px 40px 28px 38px', fontSize: 84, fontWeight: 800, opacity: btn.opacity, transform: `scale(${btn.opacity < 1 ? interpolate(btn.s, [0, 1], [0.7, 1]) : pulse})`, ...RTL}}>
           سجّل الحين
         </div>
       </AbsoluteFill>
-      <div style={{position: 'absolute', bottom: 200, left: 160, width: 16, height: 16, borderRadius: '50%', backgroundColor: BLUE}} />
     </NotebookBg>
   );
 };
