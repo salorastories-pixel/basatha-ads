@@ -13,6 +13,7 @@ import {
   useVideoConfig,
 } from 'remotion';
 import {FahmAd, FAHM_DURATION} from './FahmAd';
+import {FahmNotebook, FAHM_NB_DURATION} from './FahmNotebook';
 
 // ===== هوية بسطها الرسمية =====
 const CREAM = '#F6EBDB';
@@ -813,6 +814,14 @@ export const RemotionRoot: React.FC = () => {
         id="FahmAd"
         component={FahmAd}
         durationInFrames={FAHM_DURATION}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="FahmNotebook"
+        component={FahmNotebook}
+        durationInFrames={FAHM_NB_DURATION}
         fps={30}
         width={1080}
         height={1920}
